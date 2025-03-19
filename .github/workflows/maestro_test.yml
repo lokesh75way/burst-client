@@ -1,0 +1,44 @@
+name: E2E Tests with Maestro (iOS)
+
+jobs:
+    e2e-tests:
+        name: Run Maestro E2E Tests (iOS)
+        runs-on: macos-latest # Required for iOS simulator
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Set Up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+
+            - name: Install Dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Install Maestro CLI
+              run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+            - name: Verify Maestro Installation
+              run: maestro --version
+
+            - name: Build iOS App for Testing
+              run: |
+                  cd ios
+                  xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -configuration Debug -sdk iphonesimulator -derivedDataPath build
+                  cd ..
+
+            - name: Run All Maestro E2E Tests
+              run: |
+                  export PATH="$HOME/.maestro/bin:$PATH"
+                  for test in e2e/*.yaml; do
+                    echo "Running test: $test"
+                    maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || exit 1
+                  done
+
+            - name: Upload Test Results (Optional)
+              uses: actions/upload-artifact@v3
+              with:
+                  name: maestro-test-results
+                  path: e2e/*.xml
