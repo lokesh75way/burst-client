@@ -26,7 +26,11 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Maestro CLI
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> ~/.bashrc
+          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> ~/.zshrc
+          source ~/.bashrc || source ~/.zshrc
 
       - name: Verify Maestro Installation
         run: maestro --version
@@ -34,7 +38,11 @@ jobs:
       - name: Build iOS App for Testing
         run: |
           cd ios
-          xcodebuild -workspace Burst.xcworkspace -scheme Burst -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          xcodebuild -workspace Burst.xcworkspace \
+                     -scheme Burst \
+                     -configuration Debug \
+                     -sdk iphonesimulator \
+                     -derivedDataPath ~/Library/Developer/Xcode/DerivedData
           cd ..
 
       - name: Run All Maestro E2E Tests
@@ -46,7 +54,7 @@ jobs:
           done
 
       - name: Upload Test Results (Optional)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: maestro-test-results
           path: e2e/*.xml
