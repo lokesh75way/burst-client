@@ -42,7 +42,7 @@ jobs:
           xcrun simctl bootstatus "iPhone 14" -b || echo "iPhone 14 already booted"
           xcrun simctl list devices
 
-          
+
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
@@ -72,9 +72,9 @@ jobs:
       #       maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || (echo "❌ Test failed: $test" && exit 1)
       #     done
 
-      - name: Upload Test Results
-        if: always()  # Upload results even if tests fail
-        uses: actions/upload-artifact@v4
-        with:
-          name: maestro-test-results
-          path: e2e/*.xml
+      # - name: Upload Test Results
+      #   if: always()  # Upload results even if tests fail
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: maestro-test-results
+      #     path: e2e/*.xml
