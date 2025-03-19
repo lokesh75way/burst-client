@@ -1,0 +1,106 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "What's on your mind?"
+- inputText: "This is a test post"
+
+- hideKeyboard
+
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: "add-reply"
+      index: 0
+
+- tapOn: Post your reply
+
+- inputText: "Test reply"
+
+- hideKeyboard
+- tapOn: "Reply"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "add-quote"
+      index: 0
+- tapOn: "Quote it"
+- tapOn: "Add a comment"
+- inputText: "Adding a Quote Test"
+- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+- assertVisible: "This is a test post"
+- assertVisible: "Adding a Quote Test"

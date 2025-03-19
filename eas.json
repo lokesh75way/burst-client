@@ -1,0 +1,34 @@
+{
+    "build": {
+        "preview": {
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://curio-backend-74809566ab09.herokuapp.com/api/v1/"
+            }
+        },
+        "preview2": {
+            "android": {
+                "gradleCommand": ":app:assembleRelease"
+            }
+        },
+        "preview3": {
+            "developmentClient": true
+        },
+        "production": {
+            "autoIncrement": true,
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://curio-backend-74809566ab09.herokuapp.com/api/v1/"
+            }
+        },
+        "test": {
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://curio-backend-74809566ab09.herokuapp.com/api/v1/"
+            }
+        }
+    },
+    "cli": {
+        "appVersionSource": "remote"
+    }
+}

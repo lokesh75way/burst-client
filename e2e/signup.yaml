@@ -1,0 +1,33 @@
+appId: "com.mycurio.curio"
+---
+- tapOn: "Signup"
+- tapOn: "Accept"
+- tapOn: "Accept"
+- tapOn:
+      point: "27%,45%"
+- inputText: "Florance"
+- tapOn:
+      point: "7%,9%"
+- tapOn:
+      point: "25%,54%"
+- inputText: "Florance"
+- tapOn:
+      point: "7%,9%"
+- tapOn:
+      point: "16%,63%"
+- inputText: "florance@yopmail.com"
+- tapOn:
+      point: "7%,9%"
+- tapOn:
+      point: "29%,70%"
+- inputText: "Test@1234"
+- tapOn:
+      point: "7%,9%"
+- tapOn:
+      point: "32%,79%"
+- inputText: "Test@1234"
+- tapOn:
+      point: "7%,9%"
+- tapOn: "Get Started"
+- waitForAnimationToEnd
+- tapOn: OK

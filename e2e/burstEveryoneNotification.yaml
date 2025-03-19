@@ -1,0 +1,151 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "What's on your mind?"
+- inputText: "This is a test post for everyone"
+
+- hideKeyboard
+
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- assertVisible: "This is a test post for everyone"
+- tapOn:
+      id: "burst-sheet-button"
+      index: 0
+- waitForAnimationToEnd
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "florance@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- assertVisible: "This is a test post for everyone"
+- tapOn:
+      id: "burst-sheet-button"
+      index: 0
+- waitForAnimationToEnd
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+- assertVisible: "This is a test post for everyone"
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+- assertVisible: "There is a new post in the Everyone channel. Go check it out!"

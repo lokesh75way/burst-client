@@ -1,0 +1,11 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      id: "add-quote"
+      index: 0
+- tapOn: "Add a comment"
+- inputText: "Adding a Quote"
+- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd

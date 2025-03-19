@@ -1,0 +1,19 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- inputText: "Posting for test with images"
+- "hideKeyboard"
+- tapOn:
+      id: "picker-gallery"
+- tapOn:
+      id: "image"
+      index: 0
+- tapOn:
+      id: "image"
+      index: 1
+- tapOn:
+      id: "image"
+      index: 1
+- tapOn: "Post"

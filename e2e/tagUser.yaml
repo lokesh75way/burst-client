@@ -1,0 +1,49 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+
+- tapOn:
+      point: "24%,52%"
+- inputText: "mabel@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@123"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- inputText: "testing tag notification @Florance"
+- "hideKeyboard"
+- tapOn: "Florance"
+- tapOn: "Post"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+
+- assertVisible: "Login"
+
+- tapOn:
+      point: "24%,52%"
+- inputText: "florance@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@1234"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "notification-nav-icon"
+
+- waitForAnimationToEnd
+
+- assertVisible: "testing tag notification @Florance"
+- assertVisible: "Mirabell tagged you in the post"
+- tapOn: "Mirabell tagged you in the post"

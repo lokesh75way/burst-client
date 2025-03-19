@@ -1,0 +1,13 @@
+appId: "com.mycurio.curio"
+---
+# - tapOn:
+#     point: 50%,95%
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "What's on your mind?"
+- inputText: "This is a test post"
+
+- hideKeyboard
+
+- tapOn: "Post"

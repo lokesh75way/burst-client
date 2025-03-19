@@ -1,0 +1,11 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      id: "profile-nav-icon"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "delete-post"
+      index: 0
+
+- tapOn: "Delete"

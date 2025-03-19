@@ -1,0 +1,33 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: "profile-nav-icon"
+
+- waitForAnimationToEnd
+
+- tapOn: Invite Friends
+
+- waitForAnimationToEnd
+
+- inputText: xidav42141@calmpros.com
+
+- tapOn: Send invite email
+
+- assertVisible: "Invitation sent!"

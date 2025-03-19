@@ -1,0 +1,21 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+# Tap outside to dismiss keyboard
+- tapOn:
+      point: 12%,29%
+- tapOn: "Forgot Password?"
+- waitForAnimationToEnd
+- assertVisible: "Submit"
+- tapOn: "Submit"
+- assertVisible: "Enter 6 digit OTP"
+- extendedWaitUntil:
+      visible: "Resend Code"
+      timeout: 60000
+
+- assertVisible: "Resend Code"
+- tapOn: "Resend Code"
+- assertVisible: "OTP Resent"

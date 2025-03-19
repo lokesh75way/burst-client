@@ -1,0 +1,61 @@
+appId: "com.mycurio.curio"
+---
+# - tapOn:
+#     point: 14%,51%
+# - inputText: "mabel@yopmail.com"
+
+# # Tap outside to dismiss keyboard
+# - tapOn:
+#     point: 12%,29%
+
+# # Tap on Password field and enter text
+# - tapOn:
+#     point: 12%,59%
+# - inputText: "Test@123"
+
+# # Tap on Login button
+# - tapOn: "Login"
+
+#Verify login success
+- assertNotVisible: "Login"
+
+# - tapOn: "#everyone"
+
+# - waitForAnimationToEnd
+
+# - swipe:
+#       start: 47%,71%
+#       end: 47%,30%
+#       duration: 1272
+
+- tapOn:
+      id: "burst-sheet-button"
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 1
+# - tapOn:
+# point: "50%,59%"
+
+- tapOn: "Confirm"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "burst-sheet-button"
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 1
+
+- tapOn: "Confirm"
+
+- assertVisible: "All Feeds"

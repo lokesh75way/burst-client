@@ -1,0 +1,101 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "What's on your mind?"
+- inputText: "This is a test post"
+
+- hideKeyboard
+
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: "burst-sheet-button"
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 1
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 2
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 3
+# - tapOn:
+# point: "50%,59%"
+
+- tapOn: "Confirm"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd

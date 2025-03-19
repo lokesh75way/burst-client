@@ -1,0 +1,107 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "florance@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- swipe:
+      start: "92%,9%"
+      end: "2%,8%"
+      duration: 100
+- swipe:
+      start: "92%,9%"
+      end: "2%,8%"
+      duration: 100
+
+- tapOn:
+      id: "channels"
+
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+      element: "Join"
+      direction: DOWN
+- tapOn: "Join"
+
+- waitForAnimationToEnd
+- scrollUntilVisible:
+      element: "Create"
+      direction: UP
+
+- tapOn: "Create"
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "channel-tag-input"
+- inputText: "Test_channel_2"
+- tapOn:
+      id: "channel-tag-desc"
+- inputText: "a short description"
+- tapOn:
+      point: "48%,60%"
+- tapOn: "Next"
+
+- tapOn: "Search for Users"
+- inputText: "Mabel"
+- tapOn:
+      point: "48%,60%"
+- tapOn:
+      id: "add-user"
+      index: 0
+- tapOn: "Search for Users"
+- eraseText
+- inputText: "Oli"
+- tapOn:
+      point: "48%,60%"
+- tapOn:
+      id: "add-user"
+      index: 0
+
+- tapOn: "Create"
+- tapOn: "Members"
+- waitForAnimationToEnd
+- tapOn:
+      point: 55%,9%
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+- assertVisible: "Leave"

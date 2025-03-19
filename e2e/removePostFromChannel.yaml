@@ -1,0 +1,114 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "Suggest Channels to your team"
+
+- tapOn: "#events"
+
+- tapOn: "Confirm"
+
+- waitForAnimationToEnd
+
+- tapOn: "What's on your mind?"
+- inputText: "test post suggest and remove from channel"
+
+- hideKeyboard
+
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: "24%,52%"
+- inputText: "florance@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@1234"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- assertVisible: "test post suggest and remove from channel"
+- tapOn:
+      id: "burst-sheet-button"
+      index: 0
+- waitForAnimationToEnd
+
+- assertVisible: "Mabel suggests:"
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 0
+- tapOn: "Join and Burst"
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 1
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 2
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: "24%,52%"
+- inputText: "mabel@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@123"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- assertVisible: "test post suggest and remove from channel"
+- tapOn:
+      id: "edit-post-icon"
+      index: 0
+- tapOn:
+      id: "remove-from-channel-button"
+      index: 0
+- tapOn: "Confirm"
+- tapOn:
+      point: 51%,14%
+- tapOn:
+      id: "post"
+      index: 0
+- waitForAnimationToEnd
+- tapOn:
+      id: "edit-post-icon"
+      index: 0

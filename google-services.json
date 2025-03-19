@@ -1,0 +1,39 @@
+{
+    "project_info": {
+        "project_number": "628799109828",
+        "project_id": "curio-burst",
+        "storage_bucket": "curio-burst.appspot.com"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:628799109828:android:e51737693a5142f60ba791",
+                "android_client_info": {
+                    "package_name": "com.stanford.curio"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "628799109828-j8jkuigaops6mq3v1pcr02has0ig0tnj.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyB9kWOZDxTdB9VisFPUI-m9MJHtNtIEOa8"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "628799109828-j8jkuigaops6mq3v1pcr02has0ig0tnj.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

@@ -1,0 +1,28 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "testbust@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Delete My Account"
+- tapOn: "Delete"
+- waitForAnimationToEnd
+- assertVisible: "Login"

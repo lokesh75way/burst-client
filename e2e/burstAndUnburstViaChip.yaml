@@ -1,0 +1,37 @@
+appId: "com.mycurio.curio"
+---
+# - tapOn:
+#     point: "74%,24%"
+# - tapOn:
+#     point: "35%,28%"
+- tapOn:
+      id: "channel-bar-chip"
+      index: 1
+- tapOn:
+      id: "burst-channel-chip"
+      index: 0
+- tapOn:
+      id: "burst-sheet-button"
+
+- tapOn:
+      id: "burst-sheet-channel-item"
+      index: 1
+
+- tapOn: "Confirm"
+
+- tapOn:
+      id: "channel-bar-chip"
+      index: 0
+
+- tapOn:
+      id: "channel-bar-chip"
+      index: 1
+
+- tapOn:
+      id: "burst-channel-chip"
+      index: 0
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "burst-sheet-button"

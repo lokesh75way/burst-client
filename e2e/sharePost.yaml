@@ -1,0 +1,36 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: share-button
+      index: 0
+- tapOn: Copy Link
+- tapOn:
+      id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- longPressOn: "What's on your mind?"
+- tapOn: "Paste"
+- hideKeyboard
+- tapOn: "Post"
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "post"
+      index: 0
+- tapOn: "Open"

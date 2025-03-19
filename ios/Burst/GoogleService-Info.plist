@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>628799109828-akpuhi666umacdj1f72hu8u7kqv1rs7c.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.628799109828-akpuhi666umacdj1f72hu8u7kqv1rs7c</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAZT5z2tCd9b4xdrcwXmBwb6lr5znIcbvs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>628799109828</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.mycurio.curio</string>
+	<key>PROJECT_ID</key>
+	<string>curio-burst</string>
+	<key>STORAGE_BUCKET</key>
+	<string>curio-burst.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:628799109828:ios:0b4ff98f7627b6bd0ba791</string>
+</dict>
+</plist>

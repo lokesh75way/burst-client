@@ -1,0 +1,84 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "florance@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- assertVisible: "Your Team are people you trust to get early, VIP access to your posts"
+
+- swipe:
+      start: "84%, 20%"
+      end: "1%, 16%"
+      duration: 500
+- waitForAnimationToEnd
+
+- swipe:
+      start: "84%, 20%"
+      end: "1%, 16%"
+      duration: 500
+- waitForAnimationToEnd
+
+- swipe:
+      start: "84%, 20%"
+      end: "1%, 16%"
+      duration: 500
+- waitForAnimationToEnd
+- tapOn: Invite
+- waitForAnimationToEnd
+
+- tapOn: Invite
+- waitForAnimationToEnd
+
+- tapOn: Invite
+- waitForAnimationToEnd
+
+- swipe:
+      start: "84%, 20%"
+      end: "1%, 16%"
+      duration: 500
+- waitForAnimationToEnd
+- tapOn: Join
+
+- waitForAnimationToEnd
+
+- tapOn: Join
+- waitForAnimationToEnd
+
+- swipe:
+      start: "50%, 80%"
+      end: "50%, 20%"
+      duration: 500
+- waitForAnimationToEnd
+
+- tapOn: Join
+- waitForAnimationToEnd
+
+- swipe:
+      start: "84%, 20%"
+      end: "1%, 16%"
+      duration: 500
+- waitForAnimationToEnd
+- assertVisible: "Join the App"
+- tapOn: "Join the App"
+- waitForAnimationToEnd
+- tapOn:
+      point: 48%, 84%
+- waitForAnimationToEnd
+
+- tapOn:
+      point: 48%, 84%
+- waitForAnimationToEnd
+- tapOn: Dismiss
+- waitForAnimationToEnd
+- assertVisible: "All Feeds"
+- assertVisible: "#everyone"

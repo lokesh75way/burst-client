@@ -1,0 +1,101 @@
+appId: "com.mycurio.curio"
+---
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- tapOn:
+      id: "team-nav-icon"
+- tapOn: "Add to Your Team"
+- tapOn: "Search"
+- inputText: "Florance"
+- hideKeyboard
+- tapOn: "Invite"
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "florance@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+- tapOn: Dismiss
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+- assertVisible: "See Invite"
+- tapOn:
+      id: "profile-nav-icon"
+- waitForAnimationToEnd
+
+- tapOn: All Teams
+
+- tapOn: Accept
+- tapOn:
+      id: "profile-nav-icon"
+- waitForAnimationToEnd
+
+- tapOn: All Teams
+- tapOn:
+      id: "profile-nav-icon"
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 12%,59%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- tapOn:
+      id: "team-nav-icon"
+
+- waitForAnimationToEnd
+- tapOn: Added
+- waitForAnimationToEnd
+- tapOn: Remove
+- waitForAnimationToEnd

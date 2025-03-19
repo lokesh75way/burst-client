@@ -1,0 +1,24 @@
+appId: "com.mycurio.curio"
+---
+- tapOn:
+      id: "add-reply"
+      index: 0
+- waitForAnimationToEnd
+- tapOn: "Post your reply"
+- inputText: "Test Reply"
+- hideKeyboard
+- tapOn: "Reply"
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "post"
+      index: 0
+- waitForAnimationToEnd
+- assertVisible: "Test Reply"
+
+- tapOn:
+      id: "delete-reply"
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+
+- assertNotVisible: "Test Reply"
