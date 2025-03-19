@@ -73,7 +73,7 @@ jobs:
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=120000  # 120 seconds
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 120 seconds
           for test in e2e/*.yaml; do
             TEST_NAME=$(basename "$test" .yaml)
             OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
@@ -95,7 +95,7 @@ jobs:
       # - name: Run Single Maestro E2E Test (login.yaml)
       #   run: |
       #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=120000  # 5 minutes
+      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
 
       #     TEST_FILE="e2e/login.yaml"
       #     OUTPUT_FILE="e2e/results-login.xml"
