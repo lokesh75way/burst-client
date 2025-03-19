@@ -45,7 +45,7 @@ jobs:
           xcrun simctl boot $UDID || echo "Simulator already booted"
 
           echo "⏳ Waiting for simulator to be ready..."
-          xcrun simctl bootstatus $UDID --wait
+          xcrun simctl bootstatus $UDID -b || echo "Simulator is already booted"
           
           echo "✅ Simulator is ready!"
           xcrun simctl list devices
