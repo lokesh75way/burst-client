@@ -16,6 +16,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          submodules: recursive # Add if using submodules
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Debug Repository Structure
+        run: ls -R
 
       - name: Set Up Node.js
         uses: actions/setup-node@v3
