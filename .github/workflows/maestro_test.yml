@@ -42,13 +42,35 @@ jobs:
           xcrun simctl bootstatus "iPhone 14" -b || echo "iPhone 14 already booted"
           xcrun simctl list devices
 
+          
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           for test in e2e/*.yaml; do
+            TEST_NAME=$(basename "$test" .yaml)
+            OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
+            
             echo "🔥 Running test: $test"
-            maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || (echo "❌ Test failed: $test" && exit 1)
+            maestro test "$test" --format junit --output "$OUTPUT_FILE"
+
+            if [ $? -ne 0 ]; then
+              echo "❌ Test failed: $test"
+              if [ -f "$OUTPUT_FILE" ]; then
+                cat "$OUTPUT_FILE"
+              else
+                echo "⚠️ No test result file generated for $test"
+              fi
+              exit 1
+            fi
           done
+
+      # - name: Run All Maestro E2E Tests
+      #   run: |
+      #     export PATH="$HOME/.maestro/bin:$PATH"
+      #     for test in e2e/*.yaml; do
+      #       echo "🔥 Running test: $test"
+      #       maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || (echo "❌ Test failed: $test" && exit 1)
+      #     done
 
       - name: Upload Test Results
         if: always()  # Upload results even if tests fail
