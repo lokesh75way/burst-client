@@ -3,7 +3,7 @@ name: E2E Tests with Maestro (iOS)
 on:
   push:
     branches:
-      - main
+      - testCase
   pull_request:
     branches:
       - main
