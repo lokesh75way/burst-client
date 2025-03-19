@@ -37,7 +37,16 @@ jobs:
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Verify Maestro Installation
-        run: maestro --version
+        run: |
+          maestro --version
+          which maestro
+
+      - name: Debug iOS Workspace
+        run: |
+          cd ios
+          ls -la
+          xcodebuild -list -workspace Burst.xcworkspace
+          cd ..
 
       - name: Build iOS App for Testing
         run: |
@@ -48,6 +57,10 @@ jobs:
                      -sdk iphonesimulator \
                      -derivedDataPath ~/Library/Developer/Xcode/DerivedData
           cd ..
+
+      - name: Debug Maestro Test Files
+        run: |
+          ls -la e2e
 
       - name: Run All Maestro E2E Tests
         run: |
