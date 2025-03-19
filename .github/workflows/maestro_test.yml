@@ -1,4 +1,4 @@
-name: Run Maestro Tests
+name: Run Maestro Tests (iOS)
 
 on:
   push:
@@ -10,9 +10,9 @@ on:
 
 jobs:
   maestro-tests:
-    runs-on: macos-latest  # Use macOS instead of Ubuntu
+    runs-on: macos-latest  # Use macOS for iOS Simulator
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up Java (Required for Maestro)
@@ -24,30 +24,35 @@ jobs:
       - name: Verify Java Installation
         run: java -version
 
-      - name: Install Maestro and iOS Dependencies
+      - name: Install Maestro
         run: |
           brew install mobile-dev-inc/tap/maestro
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
-          export PATH="$HOME/.maestro/bin:$PATH"
+          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
+          source ~/.zshrc || source ~/.bashrc
 
       - name: Verify Maestro Installation
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
+          which maestro || echo "⚠️ Maestro is not found in PATH!"
           maestro --version
 
       - name: Start iOS Simulator
         run: |
-          xcrun simctl boot "iPhone 14" || echo "Simulator already booted"
+          xcrun simctl bootstatus "iPhone 14" -b || echo "iPhone 14 already booted"
           xcrun simctl list devices
+
       - name: Run All Maestro E2E Tests
         run: |
+          export PATH="$HOME/.maestro/bin:$PATH"
           for test in e2e/*.yaml; do
-            echo "Running test: $test"
-            maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || exit 1
+            echo "🔥 Running test: $test"
+            maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || (echo "❌ Test failed: $test" && exit 1)
           done
 
-      # - name: Run Maestro Tests
-      #   run: |
-      #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     maestro test test_cases/login.yaml --device "iPhone 14"
-
+      - name: Upload Test Results
+        if: always()  # Upload results even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-test-results
+          path: e2e/*.xml
