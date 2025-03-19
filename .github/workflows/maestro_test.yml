@@ -39,9 +39,17 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
-          xcrun simctl bootstatus "iPhone 14" -b || echo "iPhone 14 already booted"
+          # Boot the specific simulator using its UUID
+          xcrun simctl boot 149D7A01-C064-4FA1-BB4C-A632D9763B1B || echo "Simulator already booted"
+          
+          # Verify the simulator is booted
+          echo "📱 Simulator Status:"
           xcrun simctl list devices
 
+      - name: Debug Maestro Test Files
+        run: |
+          echo "📂 Contents of e2e directory:"
+          ls -la e2e || echo "⚠️ e2e directory not found!"
 
       - name: Run All Maestro E2E Tests
         run: |
@@ -63,14 +71,6 @@ jobs:
               exit 1
             fi
           done
-
-      # - name: Run All Maestro E2E Tests
-      #   run: |
-      #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     for test in e2e/*.yaml; do
-      #       echo "🔥 Running test: $test"
-      #       maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || (echo "❌ Test failed: $test" && exit 1)
-      #     done
 
       # - name: Upload Test Results
       #   if: always()  # Upload results even if tests fail
