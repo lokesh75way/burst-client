@@ -65,38 +65,58 @@ jobs:
           echo "🔍 Checking Xcode installation..."
           xcode-select -p || echo "❌ Xcode CLI tools not found!"
 
-          echo "🔍 Checking available iOS devices..."
-          xcrun simctl list devices
-
+         
           echo "🔍 Checking Maestro installation..."
           which maestro || echo "❌ Maestro not found!"
           maestro --version
 
-      - name: Run Single Maestro E2E Test (login.yaml)
+      - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-
-          TEST_FILE="e2e/login.yaml"
-          OUTPUT_FILE="e2e/results-login.xml"
-
-          if [ -f "$TEST_FILE" ]; then
-            echo "🔥 Running test: $TEST_FILE"
-            maestro test "$TEST_FILE" --format junit --output "$OUTPUT_FILE"
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=120000  # 120 seconds
+          for test in e2e/*.yaml; do
+            TEST_NAME=$(basename "$test" .yaml)
+            OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
+            
+            echo "🔥 Running test: $test"
+            maestro test "$test" --format junit --output "$OUTPUT_FILE"
 
             if [ $? -ne 0 ]; then
-              echo "❌ Test failed: $TEST_FILE"
+              echo "❌ Test failed: $test"
               if [ -f "$OUTPUT_FILE" ]; then
                 cat "$OUTPUT_FILE"
               else
-                echo "⚠️ No test result file generated for $TEST_FILE"
+                echo "⚠️ No test result file generated for $test"
               fi
               exit 1
             fi
-          else
-            echo "⚠️ Test file not found: $TEST_FILE"
-            exit 1
-          fi
+          done
+
+      # - name: Run Single Maestro E2E Test (login.yaml)
+      #   run: |
+      #     export PATH="$HOME/.maestro/bin:$PATH"
+      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=120000  # 5 minutes
+
+      #     TEST_FILE="e2e/login.yaml"
+      #     OUTPUT_FILE="e2e/results-login.xml"
+
+      #     if [ -f "$TEST_FILE" ]; then
+      #       echo "🔥 Running test: $TEST_FILE"
+      #       maestro test "$TEST_FILE" --format junit --output "$OUTPUT_FILE"
+
+      #       if [ $? -ne 0 ]; then
+      #         echo "❌ Test failed: $TEST_FILE"
+      #         if [ -f "$OUTPUT_FILE" ]; then
+      #           cat "$OUTPUT_FILE"
+      #         else
+      #           echo "⚠️ No test result file generated for $TEST_FILE"
+      #         fi
+      #         exit 1
+      #       fi
+      #     else
+      #       echo "⚠️ Test file not found: $TEST_FILE"
+      #       exit 1
+      #     fi
 
       # - name: Upload Test Results (Optional)
       #   if: always()
