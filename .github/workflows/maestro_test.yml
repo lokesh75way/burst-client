@@ -28,9 +28,7 @@ jobs:
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> ~/.bashrc
-          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> ~/.zshrc
-          source ~/.bashrc || source ~/.zshrc
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Verify Maestro Installation
         run: maestro --version
@@ -47,7 +45,6 @@ jobs:
 
       - name: Run All Maestro E2E Tests
         run: |
-          export PATH="$HOME/.maestro/bin:$PATH"
           for test in e2e/*.yaml; do
             echo "Running test: $test"
             maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || exit 1
