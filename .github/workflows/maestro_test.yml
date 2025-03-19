@@ -50,15 +50,15 @@ jobs:
           echo "✅ Simulator is ready!"
           xcrun simctl list devices
 
-      - name: Restart WebDriverAgent
-        run: |
-          echo "🔄 Restarting WebDriverAgent..."
-          pkill -9 xcodebuild || echo "No running WDA found"
-          xcrun simctl shutdown all
-          sleep 5
-          xcrun simctl boot $UDID
-          xcrun simctl bootstatus $UDID --wait
-          echo "✅ WebDriverAgent restarted!"
+      # - name: Restart WebDriverAgent
+      #   run: |
+      #     echo "🔄 Restarting WebDriverAgent..."
+      #     pkill -9 xcodebuild || echo "No running WDA found"
+      #     xcrun simctl shutdown all
+      #     sleep 5
+      #     xcrun simctl boot $UDID
+      #     xcrun simctl bootstatus $UDID --wait
+      #     echo "✅ WebDriverAgent restarted!"
 
       - name: Debug iOS & Maestro Setup
         run: |
