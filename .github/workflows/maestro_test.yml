@@ -27,7 +27,6 @@ jobs:
       - name: Install Maestro and iOS Dependencies
         run: |
           brew install mobile-dev-inc/tap/maestro
-          brew install mobile-dev-inc/tap/maestro-driver
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
           export PATH="$HOME/.maestro/bin:$PATH"
 
