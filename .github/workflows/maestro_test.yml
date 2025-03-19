@@ -1,4 +1,4 @@
-name: E2E Tests with Maestro (iOS)
+name: Run Maestro Tests
 
 on:
   push:
@@ -9,59 +9,37 @@ on:
       - main
 
 jobs:
-  e2e-tests:
-    name: Run Maestro E2E Tests (iOS)
-    runs-on: macos-latest # Required for iOS simulator
-
+  maestro-tests:
+    runs-on: macos-latest  # Use macOS instead of Ubuntu
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set up Java (Required for Maestro)
+        uses: actions/setup-java@v3
         with:
-          submodules: recursive # Add if using submodules
-          fetch-depth: 0 # Fetch all history for all branches and tags
+          distribution: 'temurin'
+          java-version: '11'
 
-      - name: Debug Repository Structure
-        run: ls -R
+      - name: Verify Java Installation
+        run: java -version
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Install Maestro CLI
+      - name: Install Maestro and iOS Dependencies
         run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          brew install mobile-dev-inc/tap/maestro
+          brew install mobile-dev-inc/tap/maestro-driver
+          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
+          export PATH="$HOME/.maestro/bin:$PATH"
 
       - name: Verify Maestro Installation
         run: |
+          export PATH="$HOME/.maestro/bin:$PATH"
           maestro --version
-          which maestro
 
-      - name: Debug iOS Workspace
+      - name: Start iOS Simulator
         run: |
-          cd ios
-          ls -la
-          xcodebuild -list -workspace Burst.xcworkspace
-          cd ..
-
-      - name: Build iOS App for Testing
-        run: |
-          cd ios
-          xcodebuild -workspace Burst.xcworkspace \
-                     -scheme Burst \
-                     -configuration Debug \
-                     -sdk iphonesimulator \
-                     -derivedDataPath ~/Library/Developer/Xcode/DerivedData
-          cd ..
-
-      - name: Debug Maestro Test Files
-        run: |
-          ls -la e2e
-
+          xcrun simctl boot "iPhone 14" || echo "Simulator already booted"
+          xcrun simctl list devices
       - name: Run All Maestro E2E Tests
         run: |
           for test in e2e/*.yaml; do
@@ -69,8 +47,8 @@ jobs:
             maestro test "$test" --format junit --output e2e/results-$(basename "$test" .yaml).xml || exit 1
           done
 
-      - name: Upload Test Results (Optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: maestro-test-results
-          path: e2e/*.xml
+      # - name: Run Maestro Tests
+      #   run: |
+      #     export PATH="$HOME/.maestro/bin:$PATH"
+      #     maestro test test_cases/login.yaml --device "iPhone 14"
+
