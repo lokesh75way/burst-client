@@ -39,21 +39,43 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
-          # Boot the specific simulator using its UUID
-          xcrun simctl boot 149D7A01-C064-4FA1-BB4C-A632D9763B1B || echo "Simulator already booted"
+          UDID="149D7A01-C064-4FA1-BB4C-A632D9763B1B"
+
+          echo "📱 Booting Simulator..."
+          xcrun simctl boot $UDID || echo "Simulator already booted"
+
+          echo "⏳ Waiting for simulator to be ready..."
+          xcrun simctl bootstatus $UDID --wait
           
-          # Verify the simulator is booted
-          echo "📱 Simulator Status:"
+          echo "✅ Simulator is ready!"
           xcrun simctl list devices
 
-      - name: Debug Maestro Test Files
+      - name: Restart WebDriverAgent
         run: |
-          echo "📂 Contents of e2e directory:"
-          ls -la e2e || echo "⚠️ e2e directory not found!"
+          echo "🔄 Restarting WebDriverAgent..."
+          pkill -9 xcodebuild || echo "No running WDA found"
+          xcrun simctl shutdown all
+          sleep 5
+          xcrun simctl boot $UDID
+          xcrun simctl bootstatus $UDID --wait
+          echo "✅ WebDriverAgent restarted!"
+
+      - name: Debug iOS & Maestro Setup
+        run: |
+          echo "🔍 Checking Xcode installation..."
+          xcode-select -p || echo "❌ Xcode CLI tools not found!"
+
+          echo "🔍 Checking available iOS devices..."
+          xcrun simctl list devices
+
+          echo "🔍 Checking Maestro installation..."
+          which maestro || echo "❌ Maestro not found!"
+          maestro --version
+
       - name: Run Single Maestro E2E Test (login.yaml)
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=120000  # 120 seconds
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
 
           TEST_FILE="e2e/login.yaml"
           OUTPUT_FILE="e2e/results-login.xml"
@@ -76,29 +98,8 @@ jobs:
             exit 1
           fi
 
-      # - name: Run All Maestro E2E Tests
-      #   run: |
-      #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     for test in e2e/*.yaml; do
-      #       TEST_NAME=$(basename "$test" .yaml)
-      #       OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
-            
-      #       echo "🔥 Running test: $test"
-      #       maestro test "$test" --format junit --output "$OUTPUT_FILE"
-
-      #       if [ $? -ne 0 ]; then
-      #         echo "❌ Test failed: $test"
-      #         if [ -f "$OUTPUT_FILE" ]; then
-      #           cat "$OUTPUT_FILE"
-      #         else
-      #           echo "⚠️ No test result file generated for $test"
-      #         fi
-      #         exit 1
-      #       fi
-      #     done
-
-      # - name: Upload Test Results
-      #   if: always()  # Upload results even if tests fail
+      # - name: Upload Test Results (Optional)
+      #   if: always()
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: maestro-test-results
