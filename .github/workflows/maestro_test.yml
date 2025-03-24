@@ -88,22 +88,37 @@ jobs:
           echo "📥 Installing app on iOS Simulator..."
           export PATH=$(npm bin):$PATH
           
-          # Run in the background so the workflow continues
-          npm run ios > /dev/null 2>&1 &
+          # Run the build synchronously
+          if ! npm run ios; then
+            echo "❌ npm run ios failed. Exiting."
+            exit 1
+          fi
 
-          echo "⏳ Waiting for app to install..."
-          sleep 60  # Adjust this time based on your app build duration
+          echo "⏳ Waiting for app to be built..."
+          MAX_WAIT_TIME=600  # 10 minutes
+          INTERVAL=10
+          TIME_ELAPSED=0
 
-          # Check if the app is installed
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          while [ $TIME_ELAPSED -lt $MAX_WAIT_TIME ]; do
+            APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+            if [ -n "$APP_PATH" ]; then
+              echo "✅ App build found: $APP_PATH"
+              break
+            fi
+            echo "⏳ Still waiting... ($TIME_ELAPSED seconds elapsed)"
+            sleep $INTERVAL
+            TIME_ELAPSED=$((TIME_ELAPSED + INTERVAL))
+          done
+
           if [ -z "$APP_PATH" ]; then
-            echo "❌ App build failed. Check logs."
+            echo "❌ App build failed or not found after $MAX_WAIT_TIME seconds."
             exit 1
           fi
           
           UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
           xcrun simctl install $UDID "$APP_PATH"
           echo "✅ App installed successfully!"
+
 
       - name: Debug iOS & Maestro Setup
         run: |
