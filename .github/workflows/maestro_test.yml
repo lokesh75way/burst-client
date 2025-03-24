@@ -39,7 +39,7 @@ jobs:
 
       - name: Start iOS Simulator
         run: |
-          UDID="149D7A01-C064-4FA1-BB4C-A632D9763B1B"
+          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
 
           echo "📱 Booting Simulator..."
           xcrun simctl boot $UDID || echo "Simulator already booted"
@@ -49,6 +49,21 @@ jobs:
           
           echo "✅ Simulator is ready!"
           xcrun simctl list devices
+      - name: Install App on iOS Simulator
+        run: |
+          echo "📥 Installing app on iOS Simulator..."
+          npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
+          
+          # If Expo install fails, fallback to manual install
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App build failed. Check logs."
+            exit 1
+          fi
+          
+          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
+          xcrun simctl install $UDID "$APP_PATH"
+          echo "✅ App installed successfully!"
 
       # - name: Restart WebDriverAgent
       #   run: |

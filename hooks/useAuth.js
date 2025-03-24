@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import useApp from "./useApp";
 
+
 /**
  * Custom hook managing authentication-related functionality.
  * @returns {{

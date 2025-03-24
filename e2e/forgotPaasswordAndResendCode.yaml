@@ -19,3 +19,5 @@ appId: "com.mycurio.curio"
 - assertVisible: "Resend Code"
 - tapOn: "Resend Code"
 - assertVisible: "OTP Resent"
+
+

@@ -8,7 +8,7 @@ appId: "com.mycurio.curio"
       point: 12%,29%
 
 - tapOn:
-      point: 12%,59%
+      point: 17%,61%
 - inputText: "Test@123"
 
 - tapOn: "Login"
@@ -46,9 +46,9 @@ appId: "com.mycurio.curio"
 - assertVisible: "Login"
 - tapOn:
       point: "24%,52%"
-- inputText: "florance@yopmail.com"
+- inputText: "olman@yopmail.com"
 - tapOn:
-      point: "38%,41%"
+      point: "17%,61%"
 - inputText: "Test@1234"
 - tapOn: "Login"
 
