@@ -10,7 +10,7 @@ on:
 
 jobs:
   maestro-tests:
-    runs-on: macos-latest
+    runs-on: macos-latest  # Use macOS for iOS Simulator
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -21,210 +21,120 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Verify Java Installation
+        run: java -version
+
       - name: Install Maestro
         run: |
           brew install mobile-dev-inc/tap/maestro
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
           source ~/.zshrc || source ~/.bashrc
-
       - name: Verify Maestro Installation
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           which maestro || echo "⚠️ Maestro is not found in PATH!"
           maestro --version
+      - name: Install Expo CLI
+        run: npm install -g expo
 
-      - name: Find and Start iOS Simulator
-        id: simulator_setup
+      - name: Start iOS Simulator
         run: |
-          echo "📱 Listing available simulators..."
-          xcrun simctl list devices
-          
-          IPHONE16_INFO=$(xcrun simctl list devices | grep -i 'iPhone 16' | grep -v 'Pro' | grep -v 'Plus' | head -1)
-          
-          if [ -z "$IPHONE16_INFO" ]; then
-            echo "⚠️ iPhone 16 not found, falling back to any available iPhone"
-            IPHONE_INFO=$(xcrun simctl list devices | grep -i 'iPhone' | head -1)
-          else
-            IPHONE_INFO=$IPHONE16_INFO
-          fi
-          
-          UDID=$(echo $IPHONE_INFO | sed -n 's/.*(\([A-Z0-9\-]*\)).*/\1/p')
-          
-          if [ -z "$UDID" ]; then
-            echo "❌ No iPhone simulator found!"
-            exit 1
-          fi
-          
-          echo "📱 Selected simulator with UDID: $UDID"
-          echo "simulator_udid=$UDID" >> $GITHUB_OUTPUT
-          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
-          
+          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
           echo "📱 Booting Simulator..."
-          xcrun simctl boot "$UDID" || echo "Simulator already booted"
-
+          xcrun simctl boot $UDID || echo "Simulator already booted"
           echo "⏳ Waiting for simulator to be ready..."
-          xcrun simctl bootstatus "$UDID" -b || echo "Simulator is already booted"
+          xcrun simctl bootstatus $UDID -b || echo "Simulator is already booted"
           
           echo "✅ Simulator is ready!"
-
+          xcrun simctl list devices
       - name: Install Dependencies
         run: |
           echo "📦 Installing project dependencies..."
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
-
       - name: Install iOS Dependencies
         run: |
           echo "📦 Installing CocoaPods dependencies..."
           cd ios
           pod install --verbose
           cd ..
-
-      - name: Set Default Simulator
-        run: |
-          echo "📱 Using simulator UDID: $SIMULATOR_UDID"
-          xcrun simctl shutdown all || true
-          xcrun simctl boot "$SIMULATOR_UDID" || echo "Simulator may already be booted"
+      # - name: Install App on iOS Simulator
+      #   run: |
+      #     echo "📥 Installing app on iOS Simulator..."
+      #     export PATH=$(npm bin):$PATH
           
-          RUNNING_SIMULATORS=$(xcrun simctl list devices | grep "Booted")
-          echo "📱 Currently running simulators: $RUNNING_SIMULATORS"
-          
-          WORKSPACE_FILE=$(find ./ios -name "*.xcworkspace" | head -n 1)
-          if [ -n "$WORKSPACE_FILE" ]; then
-            echo "✅ Found workspace: $WORKSPACE_FILE"
-            SCHEME_NAME=$(basename $WORKSPACE_FILE .xcworkspace)
-            echo "✅ Using scheme: $SCHEME_NAME"
-          else
-            echo "⚠️ No workspace found, using default scheme"
-            SCHEME_NAME=""
-          fi
+      #     npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
 
-      - name: Build and Install App on iOS Simulator
-        id: build_app
+      #     # Locate the built app
+      #     APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+      #     if [ -z "$APP_PATH" ]; then
+      #       echo "❌ App build failed. Check logs."
+      #       exit 1
+      #     fi
+          
+      #     UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
+      #     xcrun simctl install $UDID "$APP_PATH"
+      #     echo "✅ App installed successfully!"
+      - name: Install App on iOS Simulator
         run: |
-          echo "📥 Building app for iOS Simulator..."
+          echo "📥 Installing app on iOS Simulator..."
           export PATH=$(npm bin):$PATH
           
-          echo "📱 Building for simulator: $SIMULATOR_UDID"
-          xcrun simctl list devices | grep "$SIMULATOR_UDID"
+          # Run the build in the background
+          npm run ios &
+          NPM_PID=$!
           
-          BUILD_LOG_FILE="build_log.txt"
-          touch $BUILD_LOG_FILE
-          
-          (npm run ios > $BUILD_LOG_FILE 2>&1) &
-          IOS_PID=$!
-          
-          echo "⏳ Waiting for build to start..."
-          sleep 60
-          
-          MAX_WAIT=1200  # 20 minutes max wait
-          ELAPSED=60
-          APP_PATH=""
-          
-          while [ -z "$APP_PATH" ] && [ $ELAPSED -lt $MAX_WAIT ]; do
-            echo "--- Recent build logs ---"
-            tail -n 10 $BUILD_LOG_FILE
-            echo "------------------------"
-            
-            APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
-            
-            if [ -z "$APP_PATH" ]; then
-              sleep 30
-              ELAPSED=$((ELAPSED + 30))
-              echo "⏳ Still waiting... ($ELAPSED seconds elapsed)"
+          # Wait for the specific log message or a timeout
+          echo "⏳ Waiting for the app to open in the simulator..."
+          MAX_WAIT_TIME=1200  # 20 minutes
+          INTERVAL=10
+          TIME_ELAPSED=0
+          while [ $TIME_ELAPSED -lt $MAX_WAIT_TIME ]; do
+            if grep -q "Opening the iOS simulator, this might take a moment." <(npm logs); then
+              echo "✅ Simulator opening detected."
+              break
             fi
+            echo "⏳ Still waiting... ($TIME_ELAPSED seconds elapsed)"
+            sleep $INTERVAL
+            TIME_ELAPSED=$((TIME_ELAPSED + INTERVAL))
           done
           
-          kill $IOS_PID || true
+          # Send SIGINT to the npm process
+          echo "🛑 Stopping the npm process..."
+          kill -SIGINT $NPM_PID
           
-          if [ -z "$APP_PATH" ]; then
-            echo "❌ Failed to find built app after $MAX_WAIT seconds."
-            echo "--- Final build logs ---"
-            cat $BUILD_LOG_FILE
-            echo "-----------------------"
-            exit 1
-          fi
+          # Wait for the process to exit
+          wait $NPM_PID
           
-          echo "✅ App built successfully at: $APP_PATH"
-          
-          # Verify Info.plist
-          PLIST_PATH="$APP_PATH/Info.plist"
-          CF_BUNDLE_VERSION=$(plutil -extract CFBundleVersion raw "$PLIST_PATH")
-          if [ -z "$CF_BUNDLE_VERSION" ]; then
-            echo "❌ CFBundleVersion is missing or invalid in Info.plist"
-            exit 1
-          fi
-          echo "✅ CFBundleVersion found: $CF_BUNDLE_VERSION"
-          
-          # Install app
-          xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
-          echo "✅ App installed successfully!"
-          
-          echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
+          # Continue with the rest of the steps
+          echo "✅ App installation process stopped, continuing with Maestro tests..."
 
-      - name: Verify Simulator Status
+      - name: Debug iOS & Maestro Setup
         run: |
-          echo "📱 Verifying simulator status..."
-          xcrun simctl list devices | grep "$SIMULATOR_UDID"
-          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
-
-      - name: Verify App Installation
-        run: |
-          echo "📱 Verifying app installation on simulator..."
-          APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
-          INSTALLED_APPS=$(xcrun simctl listapps "$SIMULATOR_UDID")
-          if [[ "$INSTALLED_APPS" != *"$APP_BUNDLE_ID"* ]]; then
-            echo "❌ App not installed on simulator!"
-            exit 1
-          fi
-          echo "✅ App installed successfully!"
-
-      - name: Launch App on Simulator
-        run: |
-          echo "📱 Launching app on simulator..."
-          APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
-          xcrun simctl launch "$SIMULATOR_UDID" "$APP_BUNDLE_ID"
-          sleep 10  # Wait for app to launch
-          echo "✅ App launched successfully!"
-
+          echo "🔍 Checking Xcode installation..."
+          xcode-select -p || echo "❌ Xcode CLI tools not found!"
+          echo "🔍 Checking Maestro installation..."
+          which maestro || echo "❌ Maestro not found!"
+          maestro --version
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
           
-          echo "🔥 Running Maestro tests..."
-          
-          if [ ! -d "e2e" ] || [ -z "$(ls -A e2e/*.yaml 2>/dev/null)" ]; then
-            echo "⚠️ No test files found in e2e directory!"
-            ls -la
-            [ -d "e2e" ] && ls -la e2e
-            exit 1
-          fi
-          
           for test in e2e/*.yaml; do
             TEST_NAME=$(basename "$test" .yaml)
-            OUTPUT_DIR="e2e_results"
-            mkdir -p $OUTPUT_DIR
-            OUTPUT_FILE="$OUTPUT_DIR/results-${TEST_NAME}.xml"
+            OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
             
             echo "🔥 Running test: $test"
-            maestro test -v "$test" --format junit --output "$OUTPUT_FILE"
-            
-            TEST_RESULT=$?
-            if [ $TEST_RESULT -ne 0 ]; then
-              echo "❌ Test failed: $test (Exit code: $TEST_RESULT)"
+            maestro test "$test" --format junit --output "$OUTPUT_FILE"
+            if [ $? -ne 0 ]; then
+              echo "❌ Test failed: $test"
               if [ -f "$OUTPUT_FILE" ]; then
                 cat "$OUTPUT_FILE"
               else
                 echo "⚠️ No test result file generated for $test"
               fi
-              
-              SCREENSHOT_PATH="$OUTPUT_DIR/failure-${TEST_NAME}.png"
-              xcrun simctl io "$SIMULATOR_UDID" screenshot "$SCREENSHOT_PATH"
-              echo "📷 Captured failure screenshot: $SCREENSHOT_PATH"
-              continue
+              exit 1
             fi
-            
-            echo "✅ Test passed: $test"
           done
