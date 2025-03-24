@@ -87,7 +87,7 @@ jobs:
           
           # Wait for the specific log message or a timeout
           echo "⏳ Waiting for the app to open in the simulator..."
-          MAX_WAIT_TIME=700  # 20 minutes
+          MAX_WAIT_TIME=1200  # 20 minutes
           INTERVAL=10
           TIME_ELAPSED=0
           while [ $TIME_ELAPSED -lt $MAX_WAIT_TIME ]; do
