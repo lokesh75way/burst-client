@@ -35,7 +35,7 @@ jobs:
           maestro --version
 
       - name: Find and Start iOS Simulator
-        id: simulator
+        id: simulator_setup
         run: |
           echo "📱 Listing available simulators..."
           xcrun simctl list devices
@@ -50,22 +50,24 @@ jobs:
             IPHONE_INFO=$IPHONE16_INFO
           fi
           
-          # Extract UDID from device info
-          UDID=$(echo $IPHONE_INFO | sed -n 's/.*(\([^)]*\)).*/\1/p')
+          # Extract UDID from device info - more robust regex
+          UDID=$(echo $IPHONE_INFO | sed -n 's/.*(\([A-Z0-9\-]*\)).*/\1/p')
           
           if [ -z "$UDID" ]; then
             echo "❌ No iPhone simulator found!"
             exit 1
           fi
           
-          echo "📱 Using simulator with UDID: $UDID"
-          echo "udid=$UDID" >> $GITHUB_OUTPUT
+          echo "📱 Selected simulator with UDID: $UDID"
+          # Store UDID as an output variable AND environment variable
+          echo "simulator_udid=$UDID" >> $GITHUB_OUTPUT
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
           
           echo "📱 Booting Simulator..."
-          xcrun simctl boot $UDID || echo "Simulator already booted"
+          xcrun simctl boot "$UDID" || echo "Simulator already booted"
 
           echo "⏳ Waiting for simulator to be ready..."
-          xcrun simctl bootstatus $UDID -b || echo "Simulator is already booted"
+          xcrun simctl bootstatus "$UDID" -b || echo "Simulator is already booted"
           
           echo "✅ Simulator is ready!"
 
@@ -75,50 +77,7 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
 
-      # Add a patch to suppress React warnings
-      - name: Patch App to Suppress Warnings
-        run: |
-          echo "🔧 Patching app to suppress React warnings..."
-          
-          # Create a patch file to suppress warnings
-          cat > suppress-warnings.patch << 'EOF'
-          // Find and modify your index.js file to suppress warnings
-          const originalConsoleError = console.error;
-          const originalConsoleWarn = console.warn;
-          
-          // Suppress specific React warnings
-          console.error = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && 
-                (args[0].includes('Cannot update a component') || 
-                args[0].includes('Warning:'))) {
-              return;
-            }
-            originalConsoleError(...args);
-          };
-          
-          console.warn = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && 
-                (args[0].includes('Cannot update a component') || 
-                args[0].includes('Warning:'))) {
-              return;
-            }
-            originalConsoleWarn(...args);
-          };
-          EOF
-          
-          # Find the index.js file
-          INDEX_FILE=$(find . -name "index.js" -not -path "./node_modules/*" | head -n 1)
-          
-          if [ -n "$INDEX_FILE" ]; then
-            # Add the patch at the top of the file, after any imports
-            awk 'NR==1{print $0; print "\n// Suppress React warnings for testing"}
-                 NR>1{print}' "$INDEX_FILE" > temp_file
-            cat suppress-warnings.patch >> temp_file
-            mv temp_file "$INDEX_FILE"
-            echo "✅ Successfully patched $INDEX_FILE to suppress warnings"
-          else
-            echo "⚠️ Could not find index.js to patch. Warning suppression not applied."
-          fi
+     
 
       - name: Install iOS Dependencies
         run: |
@@ -129,11 +88,20 @@ jobs:
 
       - name: Set Default Simulator
         run: |
-          # Set the iPhone 16 as the default simulator for the build
-          xcrun simctl shutdown all
-          xcrun simctl boot ${{ steps.simulator.outputs.udid }}
+          # Double-check that we have the simulator UDID
+          echo "📱 Using simulator UDID: $SIMULATOR_UDID"
           
-          # Check if we need to modify the project for specific simulator
+          # Make sure all simulators are shutdown
+          xcrun simctl shutdown all || true
+          
+          # Boot our target simulator explicitly with the UDID
+          xcrun simctl boot "$SIMULATOR_UDID" || echo "Simulator may already be booted"
+          
+          # Verify the simulator is running
+          RUNNING_SIMULATORS=$(xcrun simctl list devices | grep "Booted")
+          echo "📱 Currently running simulators: $RUNNING_SIMULATORS"
+          
+          # Find workspace
           WORKSPACE_FILE=$(find ./ios -name "*.xcworkspace" | head -n 1)
           if [ -n "$WORKSPACE_FILE" ]; then
             echo "✅ Found workspace: $WORKSPACE_FILE"
@@ -149,6 +117,10 @@ jobs:
         run: |
           echo "📥 Building app for iOS Simulator..."
           export PATH=$(npm bin):$PATH
+          
+          # Display simulator info again for verification
+          echo "📱 Building for simulator: $SIMULATOR_UDID"
+          xcrun simctl list devices | grep "$SIMULATOR_UDID"
           
           # Pre-create a log file to monitor build progress
           BUILD_LOG_FILE="build_log.txt"
@@ -195,7 +167,8 @@ jobs:
           
           echo "✅ App built successfully at: $APP_PATH"
           
-          xcrun simctl install ${{ steps.simulator.outputs.udid }} "$APP_PATH"
+          # Make sure we use the correct simulator UDID when installing
+          xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
           echo "✅ App installed successfully!"
           
           # Store app path for later use
@@ -208,8 +181,8 @@ jobs:
           
           # Launch the app before tests
           APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
-          echo "📱 Launching app with bundle ID: $APP_BUNDLE_ID"
-          xcrun simctl launch ${{ steps.simulator.outputs.udid }} $APP_BUNDLE_ID
+          echo "📱 Launching app with bundle ID: $APP_BUNDLE_ID on simulator: $SIMULATOR_UDID"
+          xcrun simctl launch "$SIMULATOR_UDID" $APP_BUNDLE_ID
           
           # Sleep to ensure app is fully launched
           sleep 10
@@ -245,7 +218,7 @@ jobs:
               
               # Capture screenshots for debugging
               SCREENSHOT_PATH="$OUTPUT_DIR/failure-${TEST_NAME}.png"
-              xcrun simctl io ${{ steps.simulator.outputs.udid }} screenshot "$SCREENSHOT_PATH"
+              xcrun simctl io "$SIMULATOR_UDID" screenshot "$SCREENSHOT_PATH"
               echo "📷 Captured failure screenshot: $SCREENSHOT_PATH"
               
               # Continue to next test rather than exiting
