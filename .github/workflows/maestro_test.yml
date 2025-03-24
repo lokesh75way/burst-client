@@ -66,14 +66,35 @@ jobs:
           pod install --verbose
           cd ..
 
+      # - name: Install App on iOS Simulator
+      #   run: |
+      #     echo "📥 Installing app on iOS Simulator..."
+      #     export PATH=$(npm bin):$PATH
+          
+      #     npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
+
+      #     # Locate the built app
+      #     APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+      #     if [ -z "$APP_PATH" ]; then
+      #       echo "❌ App build failed. Check logs."
+      #       exit 1
+      #     fi
+          
+      #     UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
+      #     xcrun simctl install $UDID "$APP_PATH"
+      #     echo "✅ App installed successfully!"
       - name: Install App on iOS Simulator
         run: |
           echo "📥 Installing app on iOS Simulator..."
           export PATH=$(npm bin):$PATH
           
-          npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
+          # Run in the background so the workflow continues
+          npm run ios > /dev/null 2>&1 &
 
-          # Locate the built app
+          echo "⏳ Waiting for app to install..."
+          sleep 60  # Adjust this time based on your app build duration
+
+          # Check if the app is installed
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ]; then
             echo "❌ App build failed. Check logs."
