@@ -36,9 +36,9 @@ jobs:
           export PATH="$HOME/.maestro/bin:$PATH"
           which maestro || echo "⚠️ Maestro is not found in PATH!"
           maestro --version
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
 
+      - name: Install Expo CLI
+        run: npm install -g expo
 
       - name: Start iOS Simulator
         run: |
@@ -52,12 +52,28 @@ jobs:
           
           echo "✅ Simulator is ready!"
           xcrun simctl list devices
+
+      - name: Install Dependencies
+        run: |
+          echo "📦 Installing project dependencies..."
+          rm -rf node_modules package-lock.json
+          npm install --legacy-peer-deps
+
+      - name: Install iOS Dependencies
+        run: |
+          echo "📦 Installing CocoaPods dependencies..."
+          cd ios
+          pod install --verbose
+          cd ..
+
       - name: Install App on iOS Simulator
         run: |
           echo "📥 Installing app on iOS Simulator..."
-          npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
+          export PATH=$(npm bin):$PATH
           
-          # If Expo install fails, fallback to manual install
+          npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
+
+          # Locate the built app
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ]; then
             echo "❌ App build failed. Check logs."
@@ -68,22 +84,11 @@ jobs:
           xcrun simctl install $UDID "$APP_PATH"
           echo "✅ App installed successfully!"
 
-      # - name: Restart WebDriverAgent
-      #   run: |
-      #     echo "🔄 Restarting WebDriverAgent..."
-      #     pkill -9 xcodebuild || echo "No running WDA found"
-      #     xcrun simctl shutdown all
-      #     sleep 5
-      #     xcrun simctl boot $UDID
-      #     xcrun simctl bootstatus $UDID --wait
-      #     echo "✅ WebDriverAgent restarted!"
-
       - name: Debug iOS & Maestro Setup
         run: |
           echo "🔍 Checking Xcode installation..."
           xcode-select -p || echo "❌ Xcode CLI tools not found!"
 
-         
           echo "🔍 Checking Maestro installation..."
           which maestro || echo "❌ Maestro not found!"
           maestro --version
@@ -91,7 +96,8 @@ jobs:
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 120 seconds
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
+          
           for test in e2e/*.yaml; do
             TEST_NAME=$(basename "$test" .yaml)
             OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
@@ -109,36 +115,3 @@ jobs:
               exit 1
             fi
           done
-
-      # - name: Run Single Maestro E2E Test (login.yaml)
-      #   run: |
-      #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-
-      #     TEST_FILE="e2e/login.yaml"
-      #     OUTPUT_FILE="e2e/results-login.xml"
-
-      #     if [ -f "$TEST_FILE" ]; then
-      #       echo "🔥 Running test: $TEST_FILE"
-      #       maestro test "$TEST_FILE" --format junit --output "$OUTPUT_FILE"
-
-      #       if [ $? -ne 0 ]; then
-      #         echo "❌ Test failed: $TEST_FILE"
-      #         if [ -f "$OUTPUT_FILE" ]; then
-      #           cat "$OUTPUT_FILE"
-      #         else
-      #           echo "⚠️ No test result file generated for $TEST_FILE"
-      #         fi
-      #         exit 1
-      #       fi
-      #     else
-      #       echo "⚠️ Test file not found: $TEST_FILE"
-      #       exit 1
-      #     fi
-
-      # - name: Upload Test Results (Optional)
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: maestro-test-results
-      #     path: e2e/*.xml
