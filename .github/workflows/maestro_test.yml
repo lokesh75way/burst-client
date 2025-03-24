@@ -37,10 +37,33 @@ jobs:
       - name: Install Expo CLI
         run: npm install -g expo
 
-      - name: Start iOS Simulator
+      - name: Find and Start iOS Simulator
+        id: simulator
         run: |
-          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-
+          echo "📱 Listing available simulators..."
+          xcrun simctl list devices
+          
+          # Find iPhone 16 simulator
+          IPHONE16_INFO=$(xcrun simctl list devices | grep -i 'iPhone 16' | grep -v 'Pro' | grep -v 'Plus' | head -1)
+          
+          if [ -z "$IPHONE16_INFO" ]; then
+            echo "⚠️ iPhone 16 not found, falling back to any available iPhone"
+            IPHONE_INFO=$(xcrun simctl list devices | grep -i 'iPhone' | head -1)
+          else
+            IPHONE_INFO=$IPHONE16_INFO
+          fi
+          
+          # Extract UDID from device info
+          UDID=$(echo $IPHONE_INFO | sed -n 's/.*(\([^)]*\)).*/\1/p')
+          
+          if [ -z "$UDID" ]; then
+            echo "❌ No iPhone simulator found!"
+            exit 1
+          fi
+          
+          echo "📱 Using simulator with UDID: $UDID"
+          echo "udid=$UDID" >> $GITHUB_OUTPUT
+          
           echo "📱 Booting Simulator..."
           xcrun simctl boot $UDID || echo "Simulator already booted"
 
@@ -48,7 +71,6 @@ jobs:
           xcrun simctl bootstatus $UDID -b || echo "Simulator is already booted"
           
           echo "✅ Simulator is ready!"
-          xcrun simctl list devices
 
       - name: Install Dependencies
         run: |
@@ -56,50 +78,7 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
 
-      # Add a patch to suppress React warnings
-      - name: Patch App to Suppress Warnings
-        run: |
-          echo "🔧 Patching app to suppress React warnings..."
-          
-          # Create a patch file to suppress warnings
-          cat > suppress-warnings.patch << 'EOF'
-          // Find and modify your index.js file to suppress warnings
-          const originalConsoleError = console.error;
-          const originalConsoleWarn = console.warn;
-          
-          // Suppress specific React warnings
-          console.error = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && 
-                (args[0].includes('Cannot update a component') || 
-                args[0].includes('Warning:'))) {
-              return;
-            }
-            originalConsoleError(...args);
-          };
-          
-          console.warn = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && 
-                (args[0].includes('Cannot update a component') || 
-                args[0].includes('Warning:'))) {
-              return;
-            }
-            originalConsoleWarn(...args);
-          };
-          EOF
-          
-          # Find the index.js file
-          INDEX_FILE=$(find . -name "index.js" -not -path "./node_modules/*" | head -n 1)
-          
-          if [ -n "$INDEX_FILE" ]; then
-            # Add the patch at the top of the file, after any imports
-            awk 'NR==1{print $0; print "\n// Suppress React warnings for testing"}
-                 NR>1{print}' "$INDEX_FILE" > temp_file
-            cat suppress-warnings.patch >> temp_file
-            mv temp_file "$INDEX_FILE"
-            echo "✅ Successfully patched $INDEX_FILE to suppress warnings"
-          else
-            echo "⚠️ Could not find index.js to patch. Warning suppression not applied."
-          fi
+      
 
       - name: Install iOS Dependencies
         run: |
@@ -115,7 +94,7 @@ jobs:
           export PATH=$(npm bin):$PATH
           
           # Start a background process to build the app
-          npm run ios &
+          npm run ios -- --simulator="iPhone 16" &
           IOS_PID=$!
           
           echo "⏳ Waiting for build to start..."
@@ -148,8 +127,7 @@ jobs:
           
           echo "✅ App built successfully at: $APP_PATH"
           
-          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-          xcrun simctl install $UDID "$APP_PATH"
+          xcrun simctl install ${{ steps.simulator.outputs.udid }} "$APP_PATH"
           echo "✅ App installed successfully!"
           
           # Store app path for later use
@@ -161,10 +139,9 @@ jobs:
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
           
           # Launch the app before tests
-          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
           APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
           echo "📱 Launching app with bundle ID: $APP_BUNDLE_ID"
-          xcrun simctl launch $UDID $APP_BUNDLE_ID
+          xcrun simctl launch ${{ steps.simulator.outputs.udid }} $APP_BUNDLE_ID
           
           # Sleep to ensure app is fully launched
           sleep 10
@@ -188,7 +165,7 @@ jobs:
               fi
               
               # Instead of exiting, capture screenshots for debugging
-              xcrun simctl io $UDID screenshot "failure-${TEST_NAME}.png"
+              xcrun simctl io ${{ steps.simulator.outputs.udid }} screenshot "failure-${TEST_NAME}.png"
               echo "📷 Captured failure screenshot: failure-${TEST_NAME}.png"
               
               # Continue to next test rather than exiting
