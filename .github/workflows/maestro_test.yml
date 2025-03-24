@@ -10,7 +10,7 @@ on:
 
 jobs:
   maestro-tests:
-    runs-on: macos-latest  # Use macOS for iOS Simulator
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -40,7 +40,6 @@ jobs:
           echo "📱 Listing available simulators..."
           xcrun simctl list devices
           
-          # Find iPhone 16 simulator
           IPHONE16_INFO=$(xcrun simctl list devices | grep -i 'iPhone 16' | grep -v 'Pro' | grep -v 'Plus' | head -1)
           
           if [ -z "$IPHONE16_INFO" ]; then
@@ -50,7 +49,6 @@ jobs:
             IPHONE_INFO=$IPHONE16_INFO
           fi
           
-          # Extract UDID from device info
           UDID=$(echo $IPHONE_INFO | sed -n 's/.*(\([A-Z0-9\-]*\)).*/\1/p')
           
           if [ -z "$UDID" ]; then
@@ -150,7 +148,7 @@ jobs:
           
           echo "✅ App built successfully at: $APP_PATH"
           
-          # Verify Info.plist contains CFBundleVersion
+          # Verify Info.plist
           PLIST_PATH="$APP_PATH/Info.plist"
           CF_BUNDLE_VERSION=$(plutil -extract CFBundleVersion raw "$PLIST_PATH")
           if [ -z "$CF_BUNDLE_VERSION" ]; then
@@ -159,21 +157,41 @@ jobs:
           fi
           echo "✅ CFBundleVersion found: $CF_BUNDLE_VERSION"
           
+          # Install app
           xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
           echo "✅ App installed successfully!"
           
           echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
 
+      - name: Verify Simulator Status
+        run: |
+          echo "📱 Verifying simulator status..."
+          xcrun simctl list devices | grep "$SIMULATOR_UDID"
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+
+      - name: Verify App Installation
+        run: |
+          echo "📱 Verifying app installation on simulator..."
+          APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
+          INSTALLED_APPS=$(xcrun simctl listapps "$SIMULATOR_UDID")
+          if [[ "$INSTALLED_APPS" != *"$APP_BUNDLE_ID"* ]]; then
+            echo "❌ App not installed on simulator!"
+            exit 1
+          fi
+          echo "✅ App installed successfully!"
+
+      - name: Launch App on Simulator
+        run: |
+          echo "📱 Launching app on simulator..."
+          APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
+          xcrun simctl launch "$SIMULATOR_UDID" "$APP_BUNDLE_ID"
+          sleep 10  # Wait for app to launch
+          echo "✅ App launched successfully!"
+
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-          
-          APP_BUNDLE_ID=$(plutil -convert json -o - ${{ steps.build_app.outputs.app_path }}/Info.plist | jq -r '.CFBundleIdentifier')
-          echo "📱 Launching app with bundle ID: $APP_BUNDLE_ID on simulator: $SIMULATOR_UDID"
-          xcrun simctl launch "$SIMULATOR_UDID" $APP_BUNDLE_ID
-          
-          sleep 10
           
           echo "🔥 Running Maestro tests..."
           
