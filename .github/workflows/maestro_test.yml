@@ -36,6 +36,9 @@ jobs:
           export PATH="$HOME/.maestro/bin:$PATH"
           which maestro || echo "⚠️ Maestro is not found in PATH!"
           maestro --version
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
 
       - name: Start iOS Simulator
         run: |
