@@ -101,7 +101,7 @@ jobs:
           done
           
           # Send SIGINT to the npm process
-          echo "🛑 Stopping the npm process..."
+          echo "🛑 Stopping the npm process..." 
           kill -SIGINT $NPM_PID
           
           # Wait for the process to exit
