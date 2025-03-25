@@ -117,17 +117,42 @@ jobs:
           echo "🔍 Checking Maestro installation..."
           which maestro || echo "❌ Maestro not found!"
           maestro --version
+      # - name: Run All Maestro E2E Tests
+      #   run: |
+      #     export PATH="$HOME/.maestro/bin:$PATH"
+      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
+          
+      #     for test in e2e/*.yaml; do
+      #       TEST_NAME=$(basename "$test" .yaml)
+      #       OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
+            
+      #       echo "🔥 Running test: $test"
+      #       maestro test "$test" --format junit --output "$OUTPUT_FILE"
+      #       if [ $? -ne 0 ]; then
+      #         echo "❌ Test failed: $test"
+      #         if [ -f "$OUTPUT_FILE" ]; then
+      #           cat "$OUTPUT_FILE"
+      #         else
+      #           echo "⚠️ No test result file generated for $test"
+      #         fi
+      #         exit 1
+      #       fi
+      #     done
+
       - name: Run All Maestro E2E Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-          
+
+          ALL_TESTS_PASSED=true
+
           for test in e2e/*.yaml; do
             TEST_NAME=$(basename "$test" .yaml)
             OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
-            
+
             echo "🔥 Running test: $test"
             maestro test "$test" --format junit --output "$OUTPUT_FILE"
+            
             if [ $? -ne 0 ]; then
               echo "❌ Test failed: $test"
               if [ -f "$OUTPUT_FILE" ]; then
@@ -135,6 +160,13 @@ jobs:
               else
                 echo "⚠️ No test result file generated for $test"
               fi
-              exit 1
+              ALL_TESTS_PASSED=false
             fi
           done
+
+          if [ "$ALL_TESTS_PASSED" = false ]; then
+            echo "❌ Some tests failed. Check logs."
+            exit 1
+          else
+            echo "✅ ALL TEST CASES RAN SUCCESSFULLY!"
+          fi
