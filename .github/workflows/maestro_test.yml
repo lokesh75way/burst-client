@@ -10,8 +10,8 @@ on:
       - main
 
 jobs:
-  maestro-tests:
-    runs-on: macos-latest  # Use macOS for iOS Simulator
+  setup-docker:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -20,23 +20,10 @@ jobs:
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
           cat .env  # Debugging, remove in production
-      - name: Install Docker
-        run: |
-          brew install --cask docker
-          open /Applications/Docker.app || echo "Docker UI may need manual launch"
-          sleep 10
-
-      - name: Start Docker
-        run: |
-          osascript -e 'tell application "Docker" to activate'
-          sleep 15 
-
-      - name: Verify Docker Installation
-        run: docker --version
 
       - name: Pull and Run Docker Containers
         run: |
-          echo "🚀 Pulling Docker images...."
+          echo "🚀 Pulling Docker images..."
           docker pull testburst/burst-backend-db:latest
           docker pull testburst/burst-backend-backend:latest
 
@@ -53,6 +40,18 @@ jobs:
             testburst/burst-backend-backend:latest
 
           echo "✅ Containers are running!"
+
+
+  maestro-tests:
+    runs-on: macos-latest  # Use macOS for iOS Simulator
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Decode and Export Environment Variables
+        run: |
+          echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
+          cat .env  # Debugging, remove in production
 
       - name: Set up Java (Required for Maestro)
         uses: actions/setup-java@v3
