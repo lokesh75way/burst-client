@@ -23,7 +23,7 @@ jobs:
 
       - name: Pull and Run Docker Containers
         run: |
-          echo "🚀 Pulling Docker images..."
+          echo "🚀 Pulling Docker images...."
           docker pull testburst/burst-backend-db:latest
           docker pull testburst/burst-backend-backend:latest
 
