@@ -20,6 +20,19 @@ jobs:
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
           cat .env  # Debugging, remove in production
+      - name: Install Docker
+        run: |
+          brew install --cask docker
+          open /Applications/Docker.app || echo "Docker UI may need manual launch"
+          sleep 10
+
+      - name: Start Docker
+        run: |
+          osascript -e 'tell application "Docker" to activate'
+          sleep 15 
+
+      - name: Verify Docker Installation
+        run: docker --version
 
       - name: Pull and Run Docker Containers
         run: |
