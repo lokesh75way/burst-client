@@ -59,15 +59,9 @@ jobs:
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
           source ~/.zshrc || source ~/.bashrc
 
-      - name: Install Expo CLI
-        run: npm install -g expo
-
       - name: Start iOS Simulator
         run: |
-          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-          xcrun simctl boot $UDID || true
-          sleep 30
-          xcrun simctl bootstatus $UDID -b || true
+          xcrun simctl boot "iPhone 15 Pro"
 
       - name: Install Dependencies
         run: |
