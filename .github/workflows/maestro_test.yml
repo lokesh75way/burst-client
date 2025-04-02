@@ -16,28 +16,42 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Decode and Export Environment Variables
+        run: |
+          echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
+          cat .env  # Debugging, remove in production
+
       - name: Pull and Run Docker Containers
         run: |
           echo "🚀 Pulling Docker images..."
           docker pull testburst/burst-backend-db:latest
+          docker pull testburst/burst-backend-backend:latest
 
           echo "🔧 Running Docker containers..."
           docker network create burst
 
           docker run -d --name db --network burst -p 5432:5432 \
-            -e POSTGRES_USER=user \
-            -e POSTGRES_PASSWORD=password \
-            -e POSTGRES_DB=mydb \
+            --env-file .env \
             -v db_data:/var/lib/postgresql/data \
             testburst/burst-backend-db:latest
+          
+          docker run -d --name backend --network burst -p 8080:8080 \
+            --env-file .env \
+            testburst/burst-backend-backend:latest
 
           echo "✅ Containers are running!"
+
 
   maestro-tests:
     runs-on: macos-latest  # Use macOS for iOS Simulator
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Decode and Export Environment Variables
+        run: |
+          echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
+          cat .env  # Debugging, remove in production
 
       - name: Set up Java (Required for Maestro)
         uses: actions/setup-java@v3
