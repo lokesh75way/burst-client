@@ -19,31 +19,24 @@ jobs:
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-          cat .env  # Debugging, remove in production
+          cat .env
 
       - name: Pull and Run Docker Containers
         run: |
-          echo "🚀 Pulling Docker images..."
           docker pull testburst/burst-backend-db:latest
           docker pull testburst/burst-backend-backend:latest
-
-          echo "🔧 Running Docker containers..."
           docker network create burst
-
           docker run -d --name db --network burst -p 5432:5432 \
             --env-file .env \
             -v db_data:/var/lib/postgresql/data \
             testburst/burst-backend-db:latest
-          
           docker run -d --name backend --network burst -p 8080:8080 \
             --env-file .env \
             testburst/burst-backend-backend:latest
 
-          echo "✅ Containers are running!"
-
-
   maestro-tests:
-    runs-on: macos-latest  # Use macOS for iOS Simulator
+    needs: setup-docker
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -51,16 +44,13 @@ jobs:
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-          cat .env  # Debugging, remove in production
+          cat .env
 
-      - name: Set up Java (Required for Maestro)
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
-
-      - name: Verify Java Installation
-        run: java -version
 
       - name: Install Maestro
         run: |
@@ -68,143 +58,92 @@ jobs:
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
           echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
           source ~/.zshrc || source ~/.bashrc
-      - name: Verify Maestro Installation
-        run: |
-          export PATH="$HOME/.maestro/bin:$PATH"
-          which maestro || echo "⚠️ Maestro is not found in PATH!"
-          maestro --version
+
       - name: Install Expo CLI
         run: npm install -g expo
 
       - name: Start iOS Simulator
         run: |
           UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-          echo "📱 Booting Simulator..."
-          xcrun simctl boot $UDID || echo "Simulator already booted"
-          echo "⏳ Waiting for simulator to be ready..."
-          xcrun simctl bootstatus $UDID -b || echo "Simulator is already booted"
-          
-          echo "✅ Simulator is ready!"
-          xcrun simctl list devices
+          xcrun simctl boot $UDID || true
+          sleep 30
+          xcrun simctl bootstatus $UDID -b || true
+
       - name: Install Dependencies
         run: |
-          echo "📦 Installing project dependencies..."
           rm -rf node_modules package-lock.json
           npm install --legacy-peer-deps
+
       - name: Install iOS Dependencies
         run: |
-          echo "📦 Installing CocoaPods dependencies..."
           cd ios
           pod install --verbose
           cd ..
-      # - name: Install App on iOS Simulator
-      #   run: |
-      #     echo "📥 Installing app on iOS Simulator..."
-      #     export PATH=$(npm bin):$PATH
-          
-      #     npm run ios || echo "⚠️ Failed to install via npm, trying manually..."
 
-      #     # Locate the built app
-      #     APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
-      #     if [ -z "$APP_PATH" ]; then
-      #       echo "❌ App build failed. Check logs."
-      #       exit 1
-      #     fi
-          
-      #     UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-      #     xcrun simctl install $UDID "$APP_PATH"
-      #     echo "✅ App installed successfully!"
-      - name: Install App on iOS Simulator
+      - name: Build and Launch App
         run: |
-          echo "📥 Installing app on iOS Simulator..."
           export PATH=$(npm bin):$PATH
+          echo "Starting app build..."
           
-          # Run the build in the background
+          # Start the build in background
           npm run ios &
-          NPM_PID=$!
+          BUILD_PID=$!
           
-          # Wait for the specific log message or a timeout
-          echo "⏳ Waiting for the app to open in the simulator..."
-          MAX_WAIT_TIME=1000  # 20 minutes
-          INTERVAL=10
-          TIME_ELAPSED=0
-          while [ $TIME_ELAPSED -lt $MAX_WAIT_TIME ]; do
-            if grep -q "Opening the iOS simulator, this might take a moment." <(npm logs); then
-              echo "✅ Simulator opening detected."
+          # Wait for app to be installed
+          MAX_WAIT=300
+          COUNTER=0
+          while [ $COUNTER -lt $MAX_WAIT ]; do
+            if xcrun simctl get_app_container booted "com.mycurio.curio" >/dev/null; then
+              echo "✅ App installed successfully"
               break
             fi
-            echo "⏳ Still waiting... ($TIME_ELAPSED seconds elapsed)"
-            sleep $INTERVAL
-            TIME_ELAPSED=$((TIME_ELAPSED + INTERVAL))
+            sleep 5
+            COUNTER=$((COUNTER + 5))
+            echo "Waiting for app to install... ($COUNTER seconds)"
           done
           
-          # Send SIGINT to the npm process
-          echo "🛑 Stopping the npm process..." 
-          kill -SIGINT $NPM_PID
-          
-          # Wait for the process to exit
-          wait $NPM_PID
-          
-          # Continue with the rest of the steps
-          echo "✅ App installation process stopped, continuing with Maestro tests..."
+          # Stop the build process
+          kill $BUILD_PID || true
+          wait $BUILD_PID || true
 
-      - name: Debug iOS & Maestro Setup
-        run: |
-          echo "🔍 Checking Xcode installation..."
-          xcode-select -p || echo "❌ Xcode CLI tools not found!"
-          echo "🔍 Checking Maestro installation..."
-          which maestro || echo "❌ Maestro not found!"
-          maestro --version
-      # - name: Run All Maestro E2E Tests
-      #   run: |
-      #     export PATH="$HOME/.maestro/bin:$PATH"
-      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-          
-      #     for test in e2e/*.yaml; do
-      #       TEST_NAME=$(basename "$test" .yaml)
-      #       OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
-            
-      #       echo "🔥 Running test: $test"
-      #       maestro test "$test" --format junit --output "$OUTPUT_FILE"
-      #       if [ $? -ne 0 ]; then
-      #         echo "❌ Test failed: $test"
-      #         if [ -f "$OUTPUT_FILE" ]; then
-      #           cat "$OUTPUT_FILE"
-      #         else
-      #           echo "⚠️ No test result file generated for $test"
-      #         fi
-      #         exit 1
-      #       fi
-      #     done
-
-      - name: Run All Maestro E2E Tests
+      - name: Run Maestro Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000  # 5 minutes
-
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
+          
           ALL_TESTS_PASSED=true
-
           for test in e2e/*.yaml; do
-            TEST_NAME=$(basename "$test" .yaml)
-            OUTPUT_FILE="e2e/results-${TEST_NAME}.xml"
-
-            echo "🔥 Running test: $test"
-            maestro test "$test" --format junit --output "$OUTPUT_FILE"
-            
-            if [ $? -ne 0 ]; then
+            echo "Running test: $test"
+            if ! maestro test "$test"; then
               echo "❌ Test failed: $test"
-              if [ -f "$OUTPUT_FILE" ]; then
-                cat "$OUTPUT_FILE"
-              else
-                echo "⚠️ No test result file generated for $test"
-              fi
               ALL_TESTS_PASSED=false
+              xcrun simctl io booted screenshot "failure_$(basename "$test" .yaml).png"
             fi
           done
+          
+          exit $([ "$ALL_TESTS_PASSED" = true ] && echo 0 || echo 1)
 
-          if [ "$ALL_TESTS_PASSED" = false ]; then
-            echo "❌ Some tests failed. Check logs."
-            exit 1
-          else
-            echo "✅ ALL TEST CASES RAN SUCCESSFULLY!"
-          fi
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-screenshots
+          path: |
+            *.png
+          if-no-files-found: ignore
+
+  cleanup:
+    needs: maestro-tests
+    if: always()
+    runs-on: macos-latest
+    steps:
+      - name: Shutdown Simulator
+        run: |
+          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
+          xcrun simctl shutdown $UDID || true
+          xcrun simctl delete $UDID || true
+      - name: Stop Docker Containers
+        run: |
+          docker stop backend db || true
+          docker rm backend db || true
+          docker network rm burst || true
