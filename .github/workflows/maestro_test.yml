@@ -123,14 +123,6 @@ jobs:
           
           exit $([ "$ALL_TESTS_PASSED" = true ] && echo 0 || echo 1)
 
-      - name: Upload Test Artifacts
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-screenshots
-          path: |
-            *.png
-          if-no-files-found: ignore
 
   cleanup:
     needs: maestro-tests
