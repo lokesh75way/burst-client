@@ -10,8 +10,8 @@ on:
       - main
 
 jobs:
-  setup-docker:
-    runs-on: ubuntu-latest
+  maestro-tests:
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -19,6 +19,19 @@ jobs:
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
+          # Get the host's IP address
+          HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
+          echo "Detected host IP: $HOST_IP"
+          # Update Expo public URLs
+          sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=http://$HOST_IP:8080/api/v1/|" .env
+          sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=http://$HOST_IP:8080/|" .env
+          echo "Modified environment variables:"
+          grep "EXPO_PUBLIC_" .env
+
+      - name: Set up Docker
+        run: |
+          brew install docker
+          sudo /Applications/Docker.app/Contents/MacOS/Docker &>/dev/null &
 
       - name: Pull and Run Docker Containers
         run: |
@@ -31,18 +44,8 @@ jobs:
             testburst/burst-backend-db:latest
           docker run -d --name backend --network burst -p 8080:8080 \
             --env-file .env \
+            -e API_BIND=0.0.0.0 \
             testburst/burst-backend-backend:latest
-
-  maestro-tests:
-    needs: setup-docker
-    runs-on: macos-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Decode and Export Environment Variables
-        run: |
-          echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -75,11 +78,9 @@ jobs:
       - name: Build and Install App (Release Mode)
         run: |
           cd ios
-
           cd ..
           npx react-native run-ios --configuration Release --no-packager
-          
-          echo "✅ App launched successfully"
+          echo "✅ App launched successfully with API URL: $(grep 'EXPO_PUBLIC_API_URL' .env | cut -d '=' -f2)"
 
       - name: Run Maestro Tests
         run: |
@@ -94,23 +95,11 @@ jobs:
             fi
           done
 
-  cleanup-maestro:
-    needs: maestro-tests
-    if: always()
-    runs-on: macos-latest
-    steps:
-      - name: Shutdown Simulator
+      - name: Cleanup
+        if: always()
         run: |
           xcrun simctl shutdown "iPhone 15 Pro" || true
           xcrun simctl delete "iPhone 15 Pro" || true
-
-  cleanup-docker:
-    needs: cleanup-maestro
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-        - name: Stop Docker Containers
-          run: |
-            docker stop backend db || true
-            docker rm backend db || true
-            docker network rm burst || true
+          docker stop backend db || true
+          docker rm backend db || true
+          docker network rm burst || true
