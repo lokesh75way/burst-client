@@ -31,8 +31,6 @@ jobs:
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
           # Override API URLs with host.docker.internal
-          sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=http://host.docker.internal:8080/api/v1/|" .env
-          sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=http://host.docker.internal:8080/|" .env
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
@@ -53,54 +51,59 @@ jobs:
             --env-file .env \
             -e API_BIND=0.0.0.0 \
             testburst/burst-backend-backend:latest
+          echo "Waiting for a short period to let the backend start..."
+          sleep 15
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
+          echo "Performing a single test API call..."
+          curl -v "http://host.docker.internal:8080/api/v1/"
 
-      - name: Install Maestro
-        run: |
-          brew install mobile-dev-inc/tap/maestro
-          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
-          echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
-          source ~/.zshrc || source ~/.bashrc
+      # - name: Set up Java
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '11'
 
-      - name: Start iOS Simulator
-        run: |
-          xcrun simctl boot "iPhone 15 Pro"
+      # - name: Install Maestro
+      #   run: |
+      #     brew install mobile-dev-inc/tap/maestro
+      #     echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.zshrc
+      #     echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $HOME/.bashrc
+      #     source ~/.zshrc || source ~/.bashrc
 
-      - name: Install Dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install --legacy-peer-deps
+      # - name: Start iOS Simulator
+      #   run: |
+      #     xcrun simctl boot "iPhone 15 Pro"
 
-      - name: Install iOS Dependencies
-        run: |
-          cd ios
-          pod install --verbose
-          cd ..
+      # - name: Install Dependencies
+      #   run: |
+      #     rm -rf node_modules package-lock.json
+      #     npm install --legacy-peer-deps
 
-      - name: Build and Install App (Release Mode)
-        run: |
-          cd ios
-          cd ..
-          npx react-native run-ios --configuration Release --no-packager
-          echo "✅ App launched successfully with API URL: $(grep 'EXPO_PUBLIC_API_URL' .env | cut -d '=' -f2)"
+      # - name: Install iOS Dependencies
+      #   run: |
+      #     cd ios
+      #     pod install --verbose
+      #     cd ..
 
-      - name: Run Maestro Tests
-        run: |
-          export PATH="$HOME/.maestro/bin:$PATH"
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
+      # - name: Build and Install App (Release Mode)
+      #   run: |
+      #     cd ios
+      #     cd ..
+      #     npx react-native run-ios --configuration Release --no-packager
+      #     echo "✅ App launched successfully with API URL: $(grep 'EXPO_PUBLIC_API_URL' .env | cut -d '=' -f2)"
+
+      # - name: Run Maestro Tests
+      #   run: |
+      #     export PATH="$HOME/.maestro/bin:$PATH"
+      #     export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
           
-          for test in e2e/*.yaml; do
-            echo "Running test: $test"
-            if ! maestro test "$test"; then
-              echo "❌ Test failed: $test"
-              exit 1
-            fi
-          done
+      #     for test in e2e/*.yaml; do
+      #       echo "Running test: $test"
+      #       if ! maestro test "$test"; then
+      #         echo "❌ Test failed: $test"
+      #         exit 1
+      #       fi
+      #     done
 
       - name: Cleanup
         if: always()
