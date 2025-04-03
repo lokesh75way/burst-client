@@ -11,7 +11,7 @@ on:
 
 jobs:
   maestro-tests:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -28,31 +28,8 @@ jobs:
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
-      - name: Setup Docker (Colima)
-        run: |
-          brew install colima docker
-          
-          # Start Colima (acts as a Docker alternative)
-          colima start
-
-          # Verify Docker is running with a timeout of 2 minutes
-          echo "Waiting for Docker to be ready..."
-          MAX_WAIT=120  # Maximum wait time in seconds
-          WAIT_TIME=0
-
-          while ! docker info &>/dev/null; do
-            sleep 5
-            WAIT_TIME=$((WAIT_TIME + 5))
-            echo "Still waiting... (${WAIT_TIME}s elapsed)"
-
-            if [ "$WAIT_TIME" -ge "$MAX_WAIT" ]; then
-              echo "❌ Timeout: Docker did not start within ${MAX_WAIT} seconds."
-              exit 1
-            fi
-          done
-
-          echo "✅ Docker is running with Colima"
-
+      - name: Setup Docker on macOS
+        uses: douglascamata/setup-docker-macos-action@v1-alpha
 
       - name: Pull and Run Docker Containers
         run: |
