@@ -50,7 +50,8 @@ export const notificationCode = "CO1oza7TLb2JI5hdb9ej25";
  * Base URL for API calls.
  * @type {string}
  */
-export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || "";
+// export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || "";
+export const apiBaseUrl = "https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/api/v1/";
 
 /**
  * Base URL for notification API.
@@ -62,7 +63,8 @@ export const notificationApiBaseUrl = "https://app.nativenotify.com/api";
  * URL for static images.
  * @type {string}
  */
-export const imageBaseUrl = process.env.EXPO_PUBLIC_IMAGE_URL || "";
+// export const imageBaseUrl = process.env.EXPO_PUBLIC_IMAGE_URL || "";
+export const imageBaseUrl = "https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/";
 
 export const reviewThreshold = 1;
 
