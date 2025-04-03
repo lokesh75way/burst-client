@@ -72,36 +72,21 @@ jobs:
           pod install --verbose
           cd ..
 
-      - name: Build and Launch App
+      - name: Build and Install App (Release Mode)
         run: |
-          export PATH=$(npm bin):$PATH
-          echo "Starting app build..."
+          cd ios
+          xcodebuild clean -workspace MyApp.xcworkspace \
+            -scheme MyApp -configuration Release \
+            -sdk iphonesimulator -derivedDataPath build
           
-          # Start app in a new session using tmux (or nohup if tmux isn't available)
-          if command -v tmux &> /dev/null; then
-            tmux new-session -d -s ios_session "npm run ios"
-          else
-            nohup npm run ios > ios_build.log 2>&1 &
-          fi
+          xcodebuild build -workspace MyApp.xcworkspace \
+            -scheme MyApp -configuration Release \
+            -sdk iphonesimulator -derivedDataPath build
+
+          cd ..
+          npx react-native run-ios --configuration Release --no-packager
           
-          # Wait for app to be installed
-          MAX_WAIT=300
-          COUNTER=0
-          while [ $COUNTER -lt $MAX_WAIT ]; do
-            if xcrun simctl get_app_container booted "com.mycurio.curio" >/dev/null; then
-              echo "✅ App installed successfully"
-              break
-            fi
-            sleep 5
-            COUNTER=$((COUNTER + 5))
-            echo "Waiting for app to install... ($COUNTER seconds)"
-          done
-          
-          # Verify app is still running
-          if ! ps aux | grep "[n]pm run ios"; then
-            echo "❌ App build process stopped unexpectedly."
-            exit 1
-          fi
+          echo "✅ App launched successfully"
 
       - name: Run Maestro Tests
         run: |
@@ -112,7 +97,7 @@ jobs:
             echo "Running test: $test"
             if ! maestro test "$test"; then
               echo "❌ Test failed: $test"
-              exit 1  # Stop immediately on failure
+              exit 1
             fi
           done
 
@@ -127,7 +112,7 @@ jobs:
           xcrun simctl delete "iPhone 15 Pro" || true
 
   cleanup-docker:
-    needs: setup-docker
+    needs: cleanup-maestro
     if: always()
     runs-on: ubuntu-latest
     steps:
