@@ -28,12 +28,18 @@ jobs:
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
-      - name: Setup Docker on macOS
-        uses: douglascamata/setup-docker-macos-action@v1-alpha
-        with:
-          wait-for-daemon: true
+      - name: Setup Docker
+        run: |
+          # Install Docker Desktop for Mac
+          brew install --cask docker
+          
+          # Start Docker and wait for it to be ready
+          open -a Docker
+          echo "Waiting for Docker to start..."
+          while ! docker info &>/dev/null; do sleep 1; done
+          echo "Docker is running"
 
-  
+
       - name: Pull and Run Docker Containers
         run: |
           docker pull testburst/burst-backend-db:latest
