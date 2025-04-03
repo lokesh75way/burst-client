@@ -16,29 +16,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # - name: Decode and Export Environment Variables
-      #   run: |
-      #     echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-      #     # Get the host's IP address
-      #     HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
-      #     echo "Detected host IP: $HOST_IP"
-      #     # Update Expo public URLs
-      #     sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=http://$HOST_IP:8080/api/v1/|" .env
-      #     sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=http://$HOST_IP:8080/|" .env
-      #     echo "Modified environment variables:"
-      #     grep "EXPO_PUBLIC_" .env
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-          # Override API URLs with host.docker.internal
+          # Get the host's IP address
+          HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
+          echo "Detected host IP: $HOST_IP"
+          # Update Expo public URLs with the host's IP address
+          sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=http://$HOST_IP:8080/api/v1/|" .env
+          sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=http://$HOST_IP:8080/|" .env
           echo "Modified environment variables:"
-          grep "EXPO_PUBLIC_" .env
-
+          grep "EXPO_PUBLIC_API_URL" .env
+          grep "EXPO_PUBLIC_IMAGE_URL" .env
 
       - name: Setup Docker on macOS
         uses: douglascamata/setup-docker-macos-action@v1-alpha
 
-      - name: Pull and Run Docker Containers
+      - name: Pull and Run Docker Containers and Test API
         run: |
           docker pull testburst/burst-backend-db:latest
           docker pull testburst/burst-backend-backend:latest
@@ -51,11 +45,16 @@ jobs:
             --env-file .env \
             -e API_BIND=0.0.0.0 \
             testburst/burst-backend-backend:latest
+          
           echo "Waiting for a short period to let the backend start..."
-          sleep 15
+          sleep 10
 
+          # Retrieve the host IP again (in case it changes) and perform a single test API call
+          HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
+          echo "Using host IP: $HOST_IP"
           echo "Performing a single test API call..."
-          curl -v "http://host.docker.internal:8080/api/v1/"
+          curl -v "http://$HOST_IP:8080/api/v1/"
+
 
       # - name: Set up Java
       #   uses: actions/setup-java@v3
