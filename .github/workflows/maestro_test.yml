@@ -77,7 +77,12 @@ jobs:
           export PATH=$(npm bin):$PATH
           echo "Starting app build..."
           
-          npm run ios & BUILD_PID=$!
+          # Start app in a new session using tmux (or nohup if tmux isn't available)
+          if command -v tmux &> /dev/null; then
+            tmux new-session -d -s ios_session "npm run ios"
+          else
+            nohup npm run ios > ios_build.log 2>&1 &
+          fi
           
           # Wait for app to be installed
           MAX_WAIT=300
@@ -92,13 +97,13 @@ jobs:
             echo "Waiting for app to install... ($COUNTER seconds)"
           done
           
-          # Verify if npm run ios is still running
-          if ! ps -p $BUILD_PID > /dev/null; then
+          # Verify app is still running
+          if ! ps aux | grep "[n]pm run ios"; then
             echo "❌ App build process stopped unexpectedly."
             exit 1
           fi
 
-      - name: Run Maestro Tests in Parallel with App
+      - name: Run Maestro Tests
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
@@ -107,26 +112,27 @@ jobs:
             echo "Running test: $test"
             if ! maestro test "$test"; then
               echo "❌ Test failed: $test"
-              kill $IOS_PID  # Kill the app process if a test fails
-              exit 1  # Exit immediately on failure
+              exit 1  # Stop immediately on failure
             fi
           done
-          
-          kill $IOS_PID || true  # Ensure app process is stopped after tests
 
-
-  cleanup:
+  cleanup-maestro:
     needs: maestro-tests
     if: always()
     runs-on: macos-latest
     steps:
       - name: Shutdown Simulator
         run: |
-          UDID="D14D5D76-4DF8-4504-A8F0-418CB68A75E5"
-          xcrun simctl shutdown $UDID || true
-          xcrun simctl delete $UDID || true
-      - name: Stop Docker Containers
-        run: |
-          docker stop backend db || true
-          docker rm backend db || true
-          docker network rm burst || true
+          xcrun simctl shutdown "iPhone 15 Pro" || true
+          xcrun simctl delete "iPhone 15 Pro" || true
+
+  cleanup-docker:
+    needs: setup-docker
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+        - name: Stop Docker Containers
+          run: |
+            docker stop backend db || true
+            docker rm backend db || true
+            docker network rm burst || true
