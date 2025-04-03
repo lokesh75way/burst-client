@@ -28,11 +28,12 @@ jobs:
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
-      - name: Set up Docker
-        run: |
-          brew install docker
-          sudo /Applications/Docker.app/Contents/MacOS/Docker &>/dev/null &
+      - name: Setup Docker on macOS
+        uses: douglascamata/setup-docker-macos-action@v1-alpha
+        with:
+          wait-for-daemon: true
 
+  
       - name: Pull and Run Docker Containers
         run: |
           docker pull testburst/burst-backend-db:latest
