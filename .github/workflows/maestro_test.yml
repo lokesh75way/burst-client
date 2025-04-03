@@ -28,11 +28,21 @@ jobs:
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
-      - name: Start Docker
+      - name: Setup Docker
         run: |
-          sudo service docker start
+          # Install Docker Desktop for Mac
+          brew install --cask docker
+          
+          # Start Docker manually
+          echo "Starting Docker..."
+          /Applications/Docker.app/Contents/MacOS/Docker &
+
+          # Wait for Docker to be ready
           echo "Waiting for Docker to start..."
-          while ! docker info &>/dev/null; do sleep 1; done
+          while ! docker info &>/dev/null; do
+            sleep 5
+            echo "Still waiting..."
+          done
           echo "✅ Docker is running"
 
 
