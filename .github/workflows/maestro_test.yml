@@ -19,7 +19,6 @@ jobs:
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-          cat .env
 
       - name: Pull and Run Docker Containers
         run: |
@@ -44,7 +43,6 @@ jobs:
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
-          cat .env
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -79,9 +77,7 @@ jobs:
           export PATH=$(npm bin):$PATH
           echo "Starting app build..."
           
-          # Start the build in background
-          npm run ios &
-          BUILD_PID=$!
+          npm run ios & BUILD_PID=$!
           
           # Wait for app to be installed
           MAX_WAIT=300
@@ -96,27 +92,35 @@ jobs:
             echo "Waiting for app to install... ($COUNTER seconds)"
           done
           
-          # Stop the build process
-          kill $BUILD_PID || true
-          wait $BUILD_PID || true
+          # Verify if npm run ios is still running
+          if ! ps -p $BUILD_PID > /dev/null; then
+            echo "❌ App build process stopped unexpectedly."
+            exit 1
+          fi
 
-      - name: Run Maestro Tests
+      - name: Run Maestro Tests in Parallel with App
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
           
-          ALL_TESTS_PASSED=true
           for test in e2e/*.yaml; do
             echo "Running test: $test"
             if ! maestro test "$test"; then
               echo "❌ Test failed: $test"
-              ALL_TESTS_PASSED=false
               xcrun simctl io booted screenshot "failure_$(basename "$test" .yaml).png"
+              kill $IOS_PID  # Kill the app process if a test fails
+              exit 1  # Exit immediately on failure
             fi
           done
           
-          exit $([ "$ALL_TESTS_PASSED" = true ] && echo 0 || echo 1)
+          kill $IOS_PID || true  # Ensure app process is stopped after tests
 
+      - name: Upload Screenshots on Failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failure-screenshots
+          path: failure_*.png
 
   cleanup:
     needs: maestro-tests
