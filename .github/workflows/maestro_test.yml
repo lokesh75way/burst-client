@@ -75,13 +75,6 @@ jobs:
       - name: Build and Install App (Release Mode)
         run: |
           cd ios
-          xcodebuild clean -workspace MyApp.xcworkspace \
-            -scheme MyApp -configuration Release \
-            -sdk iphonesimulator -derivedDataPath build
-          
-          xcodebuild build -workspace MyApp.xcworkspace \
-            -scheme MyApp -configuration Release \
-            -sdk iphonesimulator -derivedDataPath build
 
           cd ..
           npx react-native run-ios --configuration Release --no-packager
