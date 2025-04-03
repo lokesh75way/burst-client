@@ -1,0 +1,49 @@
+appId: "com.mycurio.curio"
+---
+
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: share-button
+      index: 0
+- tapOn: Copy Link
+- tapOn:
+      id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- inputText: "writting a post"
+- longPressOn: "writting a post"
+- tapOn: "Paste"
+- hideKeyboard
+- tapOn: "Post"
+- waitForAnimationToEnd
+
+- tapOn: "writting a post "
+- tapOn:
+      id: "back_button"
+
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd

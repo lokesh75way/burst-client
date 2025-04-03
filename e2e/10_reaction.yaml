@@ -1,0 +1,143 @@
+appId: "com.mycurio.curio"
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: create-post-tab-icon
+
+- tapOn: "What's on your mind?"
+- inputText: "This is a test post for reaction"
+
+- hideKeyboard
+
+- tapOn: "Post"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+      point: 14%,51%
+- inputText: "olman@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 17%,61%
+- inputText: "Test@1234"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: add-emoji
+      index: 0
+
+- tapOn:
+      point: 24%,79%
+
+- tapOn:
+      id: add-emoji
+      index: 0
+
+- tapOn:
+      point: 45%,80%
+
+- tapOn: 😇
+
+- longPressOn: 😍
+
+- tapOn:
+      point: 48%,13%
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+
+- waitForAnimationToEnd
+
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+- assertVisible: "All Feeds"
+- tapOn: 😍
+- assertVisible: "😍 2"
+- waitForAnimationToEnd
+- longPressOn: "😍 2"
+
+- tapOn:
+      point: 48%,13%
+- waitForAnimationToEnd
+- tapOn:
+      id: "notification-nav-icon"
+- waitForAnimationToEnd
+
+- assertVisible: "Ole reacted 😍 on your post."
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "delete-post"
+      index: 0
+
+- tapOn: "Delete"
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"

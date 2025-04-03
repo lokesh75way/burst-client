@@ -1,0 +1,71 @@
+appId: "com.mycurio.curio"
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: "Login"
+- tapOn:
+    point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+# Tap outside to dismiss keyboard
+- tapOn:
+    point: 12%,29%
+
+# Tap on Password field and enter text
+- tapOn:
+    point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn:
+    point: 12%,29%
+
+
+# Tap on Login button
+- tapOn: "Login"
+
+# Verify login success
+- assertNotVisible: "Login"
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-settings"
+- tapOn:
+      id: "displayName-edit"
+- eraseText
+- inputText: "New_Display_Name"
+# hideKeyboard is not working here, so i used to tap on Display Name to hide it
+- tapOn:
+      point: "11%,23%"
+- swipe:
+      start: "45%,83%"
+      end: "50%,60%"
+      duration: 632
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+- assertVisible: "New_Display_Name"
+
+- tapOn:
+      id: "profile-settings"
+- tapOn:
+      id: "displayName-edit"
+- eraseText
+- inputText: "Mabel"
+# hideKeyboard is not working here, so i used to tap on Display Name to hide it
+- tapOn:
+      point: "11%,23%"
+- swipe:
+      start: "45%,83%"
+      end: "50%,60%"
+      duration: 632
+- tapOn: "Confirm"
+- waitForAnimationToEnd
+- assertVisible: "Mabel"
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd

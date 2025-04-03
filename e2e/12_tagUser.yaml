@@ -1,0 +1,99 @@
+appId: "com.mycurio.curio"
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+- tapOn:
+      point: "24%,52%"
+- inputText: "mabel@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@123"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- inputText: "testing tag notification @oli"
+- "hideKeyboard"
+- tapOn: "Oli"
+- tapOn: "Post"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- tapOn:
+      id: "profile-nav-icon"
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+
+- assertVisible: "Login"
+
+- tapOn:
+      point: "24%,52%"
+- inputText: "olman@yopmail.com"
+- tapOn:
+      point: "38%,41%"
+- inputText: "Test@1234"
+- tapOn: "Login"
+
+- waitForAnimationToEnd
+
+- tapOn:
+      id: "notification-nav-icon"
+
+- waitForAnimationToEnd
+
+- assertVisible: "testing tag notification @Oli"
+- assertVisible: "Mabel tagged you in the post"
+- tapOn: "Mabel tagged you in the post"
+
+- tapOn:
+    id: "back_button"
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+
+- assertVisible: "Login"
+
+- tapOn:
+      point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+- tapOn:
+      point: 12%,29%
+
+- tapOn:
+      point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn: "Login"
+
+- assertNotVisible: "Login"
+- tapOn:
+      id: "profile-nav-icon"
+
+- waitForAnimationToEnd
+- tapOn:
+      id: "delete-post"
+      index: 0
+
+- tapOn: "Delete"
+
+- tapOn:
+      id: "profile-nav-icon"
+
+- tapOn:
+      id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+- assertVisible: "Login"
