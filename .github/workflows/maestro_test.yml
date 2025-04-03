@@ -28,22 +28,30 @@ jobs:
           echo "Modified environment variables:"
           grep "EXPO_PUBLIC_" .env
 
-      - name: Setup Docker
+      - name: Setup Docker (Colima)
         run: |
-          # Install Docker Desktop for Mac
-          brew install --cask docker
+          brew install colima docker
           
-          # Start Docker manually
-          echo "Starting Docker..."
-          /Applications/Docker.app/Contents/MacOS/Docker &
+          # Start Colima (acts as a Docker alternative)
+          colima start
 
-          # Wait for Docker to be ready
-          echo "Waiting for Docker to start..."
+          # Verify Docker is running with a timeout of 2 minutes
+          echo "Waiting for Docker to be ready..."
+          MAX_WAIT=120  # Maximum wait time in seconds
+          WAIT_TIME=0
+
           while ! docker info &>/dev/null; do
             sleep 5
-            echo "Still waiting..."
+            WAIT_TIME=$((WAIT_TIME + 5))
+            echo "Still waiting... (${WAIT_TIME}s elapsed)"
+
+            if [ "$WAIT_TIME" -ge "$MAX_WAIT" ]; then
+              echo "❌ Timeout: Docker did not start within ${MAX_WAIT} seconds."
+              exit 1
+            fi
           done
-          echo "✅ Docker is running"
+
+          echo "✅ Docker is running with Colima"
 
 
       - name: Pull and Run Docker Containers
