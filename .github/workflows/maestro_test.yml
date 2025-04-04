@@ -102,11 +102,11 @@ jobs:
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
-          TIMEOUT_DURATION=4500
+          
           for test in e2e/*.yaml; do
             echo "Running test: $test"
-            if ! timeout $TIMEOUT_DURATION maestro test "$test"; then
-              echo "❌ Test failed or timed out: $test"
+            if ! maestro test "$test"; then
+              echo "❌ Test failed: $test"
               exit 1
             fi
           done

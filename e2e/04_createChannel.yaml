@@ -84,7 +84,7 @@ appId: "com.mycurio.curio"
       index: 0
 
 - tapOn: "Create"
-- waitForAnimationToEnd
+
 - tapOn:
       id: "profile-nav-icon"
 - tapOn:
