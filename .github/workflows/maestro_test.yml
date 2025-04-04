@@ -2,7 +2,7 @@ name: Run Maestro Tests (iOS)
 
 on:
   push:
-    branches: '*'
+    branches-ignore: []
   pull_request:
     branches:
       - main
