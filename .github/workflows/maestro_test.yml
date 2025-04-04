@@ -15,19 +15,26 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
+      
       - name: Decode and Export Environment Variables
         run: |
           echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
           # Get the host's IP address
           HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
           echo "Detected host IP: $HOST_IP"
-          # Update Expo public URLs with the host's IP address
-          sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/api/v1/|" .env
-          sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/|" .env
-          echo "Modified environment variables:"
-          grep "EXPO_PUBLIC_API_URL" .env
-          grep "EXPO_PUBLIC_IMAGE_URL" .env
+
+      # - name: Decode and Export Environment Variables
+      #   run: |
+      #     echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
+      #     # Get the host's IP address
+      #     HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
+      #     echo "Detected host IP: $HOST_IP"
+      #     # Update Expo public URLs with the host's IP address
+      #     sed -i '' "s|EXPO_PUBLIC_API_URL=.*|EXPO_PUBLIC_API_URL=https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/api/v1/|" .env
+      #     sed -i '' "s|EXPO_PUBLIC_IMAGE_URL=.*|EXPO_PUBLIC_IMAGE_URL=https://ee09-2404-7c80-64-9a31-5805-9efb-b6c9-8f9d.ngrok-free.app/|" .env
+      #     echo "Modified environment variables:"
+      #     grep "EXPO_PUBLIC_API_URL" .env
+      #     grep "EXPO_PUBLIC_IMAGE_URL" .env
 
       # - name: Setup Docker on macOS
       #   uses: douglascamata/setup-docker-macos-action@v1-alpha
@@ -87,6 +94,11 @@ jobs:
           cd ..
           npx react-native run-ios --configuration Release --no-packager
           echo "✅ App launched successfully with API URL: $(grep 'EXPO_PUBLIC_API_URL' .env | cut -d '=' -f2)"
+      
+      - name: Start Recording iOS Simulator
+        run: |
+          xcrun simctl io booted recordVideo simulator_recording.mp4 &
+          echo $! > simulator_recording_pid.txt
 
       - name: Run Maestro Tests
         run: |
@@ -100,6 +112,17 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Stop Recording iOS Simulator
+        run: |
+          kill -SIGINT $(cat simulator_recording_pid.txt)
+          sleep 5 # Ensure the recording process has terminated
+
+      - name: Upload Simulator Recording
+        uses: actions/upload-artifact@v3
+        with:
+          name: simulator-recording
+          path: simulator_recording.mp4
 
       - name: Cleanup
         if: always()
