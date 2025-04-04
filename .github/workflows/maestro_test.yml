@@ -117,7 +117,7 @@ jobs:
           sleep 5 # Ensure the recording process has terminated
 
       - name: Upload Simulator Recording
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: simulator-recording
           path: simulator_recording.mp4
