@@ -21,7 +21,7 @@ jobs:
           HOST_IP=$(ipconfig getifaddr en0 || ipconfig getifaddr en1)
           echo "Detected host IP: $HOST_IP"
 
-      # - name: Decode and Export Environment Variables
+      # - name: Decode and Export Environment Variables 
       #   run: |
       #     echo "${{ secrets.ENCODED_ENV_VARS }}" | base64 --decode > .env
       #     # Get the host's IP address
