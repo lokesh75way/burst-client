@@ -1,8 +1,6 @@
 name: Run Maestro Tests (iOS)
 
 on:
-  push:
-    branches-ignore: []
   pull_request:
     branches:
       - main
@@ -129,6 +127,3 @@ jobs:
         run: |
           xcrun simctl shutdown "iPhone 15 Pro" || true
           xcrun simctl delete "iPhone 15 Pro" || true
-          # docker stop backend db || true
-          # docker rm backend db || true
-          # docker network rm burst || true
