@@ -102,11 +102,11 @@ jobs:
         run: |
           export PATH="$HOME/.maestro/bin:$PATH"
           export MAESTRO_DRIVER_STARTUP_TIMEOUT=300000
-          
+          TIMEOUT_DURATION=4500
           for test in e2e/*.yaml; do
             echo "Running test: $test"
-            if ! maestro test "$test"; then
-              echo "❌ Test failed: $test"
+            if ! timeout $TIMEOUT_DURATION maestro test "$test"; then
+              echo "❌ Test failed or timed out: $test"
               exit 1
             fi
           done
@@ -129,6 +129,6 @@ jobs:
         run: |
           xcrun simctl shutdown "iPhone 15 Pro" || true
           xcrun simctl delete "iPhone 15 Pro" || true
-          docker stop backend db || true
-          docker rm backend db || true
-          docker network rm burst || true
+          # docker stop backend db || true
+          # docker rm backend db || true
+          # docker network rm burst || true
