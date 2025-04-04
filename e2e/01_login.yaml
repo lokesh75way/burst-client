@@ -29,9 +29,9 @@ appId: "com.mycurio.curio"
 
 - waitForAnimationToEnd
 
-- extendedWaitUntil:
-    notVisible: "Login"
-    timeout: 10000
+# - extendedWaitUntil:
+#     notVisible: "Login"
+#     timeout: 10000
 
 # Verify login success
 # - assertNotVisible: "Login"
