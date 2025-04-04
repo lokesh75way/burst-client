@@ -51,8 +51,8 @@ export const notificationCode = "CO1oza7TLb2JI5hdb9ej25";
  * @type {string}
  */
 // export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || "";
-// export const apiBaseUrl = "https://72bf-2404-7c80-64-9a31-f8ac-c359-90ce-665c.ngrok-free.app/api/v1/";
-export const apiBaseUrl = "https://a327-2404-7c80-64-9a31-800e-c47d-c8d8-605c.ngrok-free.app/api/v1/"
+export const apiBaseUrl = "https://72bf-2404-7c80-64-9a31-f8ac-c359-90ce-665c.ngrok-free.app/api/v1/";
+
 /**
  * Base URL for notification API.
  * @type {string}

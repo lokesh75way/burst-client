@@ -97,6 +97,7 @@
         "react-navigation": "^4.4.4",
         "typescript": "^5.1.3",
         "uuid": "^9.0.0",
+        "watchman": "^1.0.0",
         "whatwg-fetch": "^3.6.17",
         "yup": "^1.3.3"
     },
