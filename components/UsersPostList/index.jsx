@@ -28,7 +28,7 @@ const UsersPostList = (props) => {
     }, []);
 
     return (
-        <View style={{ flex: 1 }}>
+        <View>
             <FlatList
                 showsVerticalScrollIndicator={false}
                 data={postList}

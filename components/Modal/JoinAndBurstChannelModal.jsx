@@ -94,9 +94,10 @@ const JoinAndBurstChannelModal = ({
                             } catch (error) {
                                 console.log(error);
                             } finally {
-                                setIsLoading(false);
+                                // setIsLoading(false);
                             }
                         }}
+                        
                     >
                         {!isLoading && (
                             <Text style={styles.confirmButtonText}>

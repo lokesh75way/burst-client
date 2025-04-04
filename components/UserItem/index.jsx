@@ -15,6 +15,7 @@ const UserItem = ({
     inviteId,
     onPress,
     displayName,
+    fromTeam=false,
     isOnboarding = false,
     ...rest
 }) => {
@@ -64,8 +65,8 @@ const UserItem = ({
                         isERT={false}
                         imageUrl={source}
                         author={invitedTo}
-                        disabled={isOnboarding}
-                        fromTeam
+                        disabled={isOnboarding||fromTeam}
+                        fromScreen = "YourTeam"
                     />
                     <View style={{ width: "100%" }}>
                         <Text

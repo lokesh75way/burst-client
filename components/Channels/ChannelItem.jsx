@@ -17,7 +17,7 @@ import StackedImages from "./StackedImages";
 const ChannelItem = ({
     item,
     isCreator,
-    isJoined,
+    isJoined: initialIsJoined,
     handleRefresh,
     isDisabled = false,
 }) => {
@@ -25,6 +25,7 @@ const ChannelItem = ({
     const [modalVisible, setModalVisible] = useState(false);
     const [memberVisible, setMemberVisible] = useState(false);
     const [label, setLabel] = useState("");
+    const [isJoined, setIsJoined] = useState(initialIsJoined);
     const { addRemoveUser } = useChannels();
     const navigation = useNavigation();
     const editChannelSheetRef = useRef();
@@ -64,6 +65,7 @@ const ChannelItem = ({
         try {
             setIsLoading(true);
             await addRemoveUser(item.id, { type });
+            setIsJoined(!isJoined);
             handleRefresh();
         } catch (e) {
             console.log(e);
@@ -71,6 +73,10 @@ const ChannelItem = ({
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        setIsJoined(initialIsJoined);
+    }, [initialIsJoined]);
     useEffect(() => {
         if (isCreator) {
             setLabel("Edit");
@@ -80,6 +86,12 @@ const ChannelItem = ({
             setLabel("Join");
         }
     }, [isCreator, isJoined]);
+
+    const getButtonLabel = () => {
+        if (isCreator) return "Edit";
+        if (isJoined) return "Joined";
+        return "Join";
+    };
 
     return (
         <View style={styles.container}>
@@ -128,7 +140,8 @@ const ChannelItem = ({
             </View>
             <View style={styles.buttonContainer}>
                 <Button
-                    label={!isLoading && label}
+                    testID="edit-btn"
+                    label={!isLoading && getButtonLabel()}
                     startIcon={
                         isLoading && (
                             <View

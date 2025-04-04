@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { showMessage } from "react-native-flash-message";
-
+import useUsers from "../../hooks/useUsers";
 import useApp from "../../hooks/useApp";
 import usePosts from "../../hooks/usePosts";
 import ChannelTag from "../FeedPost/ChannelTag";
@@ -20,10 +20,11 @@ import { TrashSVG } from "../Svgs";
 const PostItem = (props) => {
     const { item, setPostList, showActions, myChannels } = props;
     const { isERT, burstedChannels } = item;
-    const { setReload } = useApp();
+    const { setReload, userData } = useApp();
     const { deletePost } = usePosts();
     const navigation = useNavigation();
     const [isDisabled, setIsDisabled] = useState(false);
+    const { me, deleteMe, updateProfile } = useUsers();
 
     /**
      * Handles the deletion of a post.
@@ -33,13 +34,39 @@ const PostItem = (props) => {
      */
 
     const handleDeletePress = async () => {
-        await deletePost(item.id);
-        setPostList((prevPostList) =>
-            prevPostList.filter((post) => post.id !== item.id),
-        );
-        setReload(true);
-    };
+        try {
 
+            setPostList(prevPosts => {
+                const hasReplies = prevPosts.some(post => post.replyingTo?.id === item.id);
+                const updatedPosts = prevPosts.filter(post => post.id !== item.id);
+                (async () => {
+                    try {
+                        await deletePost(item.id);
+                        setReload(true);
+                        if (hasReplies) {
+                            const data = await me();
+                            setPostList(data.posts);
+                        }
+                    } catch (error) {
+                        setReload(true);
+                    }
+                })();
+
+                return updatedPosts.map(post => {
+                    if(post.quote && post.quote.id === item.id) {
+                        return {
+                            ...post,
+                            quote: { ...post.quote, isDeleted: true}
+                        }
+                    }
+                    return post
+                })
+                
+            });
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
+    };
     const handleDeleteModal = () => {
         Alert.alert(
             "Delete post",
@@ -144,6 +171,7 @@ const PostItem = (props) => {
 
                 {item.quote && (
                     <QuotePreview
+                        userData={userData}
                         onPress={() => {
                             onPostClickHandler("quote");
                         }}

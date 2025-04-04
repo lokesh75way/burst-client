@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo , useCallback} from "react";
 import { Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import * as Clipboard from "expo-clipboard";
@@ -43,6 +43,24 @@ const PostActions = (props) => {
     } = props;
     const { reviewPost } = usePosts();
     const { updatedCounts, setUpdatedCounts, storage } = useApp();
+    const currentPost = useMemo(() => 
+        updatedCounts.find((obj) => obj.postId === id) || {}, 
+        [updatedCounts, id]
+    );
+
+    const derivedValues = useMemo(() => ({
+        latestReplyCount: currentPost?.replyCount ?? replyCount,
+        latestQuoteCount: currentPost?.quoteCount ?? quoteCount,
+    }), [currentPost, replyCount, quoteCount]);
+    const handleReplyPress = useCallback(() => {
+        setShowReplyModal(true);
+    }, [setShowReplyModal]);
+
+    const handleQuotePress = useCallback(() => {
+        burstCount < 1
+            ? warningModalSheetRef.current?.open()
+            : setShowQuoteModal(true);
+    }, [burstCount, setShowQuoteModal]);
     const [showModal, setShowModal] = useState(false);
     const { getPost } = usePosts();
     const [selectedItems, setSelectedItems] = useState([]);
@@ -132,9 +150,7 @@ const PostActions = (props) => {
 
         // const token = await storage.getItem("token");
 
-        return `${process.env.EXPO_PUBLIC_SHARE_URL}?postId=${
-            originalData?.id || id
-        }`;
+        return `${process.env.EXPO_PUBLIC_SHARE_URL}/${originalData?.id || id}`;
         // return `${process.env.EXPO_PUBLIC_SHARE_URL}/post/${
         //     originalData?.id || id
         // }`;
@@ -172,7 +188,7 @@ const PostActions = (props) => {
             ? warningModalSheetRef.current?.open()
             : setShowQuoteModal(true);
     };
-    const currentPost = updatedCounts.find((obj) => obj.postId === id);
+    // const currentPost = updatedCounts.find((obj) => obj.postId === id);
     const isCurrentPost = currentPost?.postId === id;
     const getCurrentPost = (keyName, value) => {
         return isCurrentPost ? currentPost?.[keyName] : value;
@@ -185,9 +201,9 @@ const PostActions = (props) => {
     const latestBurstCount = getCurrentPost("burstCount", burstCount);
     const [isFilled, setIsFilled] = useState(currentPost?.userBursted);
 
-    useEffect(() => {
-        setReplyCount(latestReplyCount);
-    }, [latestReplyCount]);
+    // useEffect(() => {
+    //     setReplyCount(latestReplyCount);
+    // }, [latestReplyCount]);
 
     // const testBurst = (state) => {
     //     console.log(
@@ -221,9 +237,8 @@ const PostActions = (props) => {
                     <View style={styles.btn}>
                         <TouchableOpacity
                             style={styles.actionIcon}
-                            onPress={() => {
-                                setShowReplyModal(true);
-                            }}
+
+                            onPress={handleReplyPress}
                             testID="add-reply"
                         >
                             <ReplySVG />
@@ -231,14 +246,14 @@ const PostActions = (props) => {
                     </View>
 
                     {latestReplyCount > 0 && (
-                        <Text style={styles.countText}>{latestReplyCount}</Text>
+                        <Text style={styles.countText}>{derivedValues.latestReplyCount}</Text>
                     )}
                 </View>
                 <View style={styles.action}>
                     <View style={styles.btn}>
                         <TouchableOpacity
                             style={styles.actionIcon}
-                            onPress={quotePress}
+                            onPress={handleQuotePress}
                             testID="add-quote"
                         >
                             <QuoteSVG />
@@ -246,7 +261,7 @@ const PostActions = (props) => {
                     </View>
 
                     {latestQuoteCount > 0 && (
-                        <Text style={styles.countText}>{latestQuoteCount}</Text>
+                        <Text style={styles.countText}>{derivedValues.latestQuoteCount}</Text>
                     )}
                 </View>
                 {/* <View style={styles.action}>

@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Alert,
     Dimensions,
@@ -30,6 +30,7 @@ import SearchBar from "../SearchBar";
 import { ChannelIcon } from "../Svgs";
 import UserItem from "../UserItem";
 import EmailInvitedUserItem from "./EmailInvitedUserItem";
+import { useIsFocused } from "@react-navigation/native";
 
 const OnboardingInvite = ({
     onboardStep,
@@ -42,6 +43,8 @@ const OnboardingInvite = ({
     setEmailInviteCount,
     invitedEmails,
     setInvitedEmails,
+    // searchText,
+    // setSearchText
 }) => {
     const { inviter, setActiveRoute, setInviter } = useApp();
     const { recommendInvitations } = useSocials();
@@ -66,6 +69,14 @@ const OnboardingInvite = ({
     } = useForm({
         resolver: yupResolver(inviteSchema),
     });
+
+
+    const isFocused = useIsFocused();
+    useEffect(() => {
+        if (isFocused) {
+            setSearchText("");
+        }
+    }, [isFocused, onboardStep]);
 
     const getInviter = async () => {
         try {

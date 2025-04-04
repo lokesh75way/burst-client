@@ -22,8 +22,8 @@ import AuthorImage from "../FeedPost/AuthorImage";
 import GalleryLoader from "../GalleryLoader";
 import Loader from "../Loader";
 import ImageHolder from "../PostInput/ImageHolder";
+import useApp from "../../hooks/useApp";
 import Picker from "../PostInput/Picker";
-import SuggestedChannels from "../PostInput/SuggestedChannels";
 
 const PostReplyModal = (props) => {
     const {
@@ -63,6 +63,7 @@ const PostReplyModal = (props) => {
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [mentions, setMentions] = useState([]);
     const { getAllUsers } = useUsers();
+    const { setReloadProfile } = useApp();
 
     const getUsers = async () => {
         // setMentions([]);
@@ -147,10 +148,12 @@ const PostReplyModal = (props) => {
                 console.log(resp.message);
                 return;
             }
+            setReloadProfile(true);
             setReplyCount((prev) => prev + 1);
             onCancel();
             const localReply = {
                 ...resp,
+                postId: post.id, 
                 betaReviews: [],
                 counts: {
                     reply: 0,
@@ -392,7 +395,7 @@ const PostReplyModal = (props) => {
                                 </View>
                             )}
                         </View>
-                        <SuggestedChannels
+                        {/* <SuggestedChannels
                             onChannelsSelected={(
                                 suggestedIds,
                                 excludedIds,
@@ -404,7 +407,7 @@ const PostReplyModal = (props) => {
                             }}
                             isCanceled={isCanceled}
                             resetCancel={() => setIsCanceled(false)}
-                        />
+                        /> */}
                         <Picker
                             ref={pickerRef}
                             images={images}

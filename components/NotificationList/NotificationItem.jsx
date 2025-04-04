@@ -165,6 +165,14 @@ const NotificationItem = ({ item }) => {
         setActiveRoute("YourTeam");
         navigation.navigate("YourTeam");
     };
+    const navigateToUserProfile = () => {
+        navigation.navigate("UserPage", {
+            userId: item?.fromUser?.id,
+            userName: item?.fromUser?.userName,
+            avatar: item?.fromUser?.profileImageKey,
+            fromScreen: "Notification"
+        });
+    };
 
     return (
         <TouchableOpacity
@@ -179,12 +187,14 @@ const NotificationItem = ({ item }) => {
                     <Image source={burstImage} style={styles.media} />
                 ) : item?.type === NotificationTypes.SHAREERT ? (
                     <View style={styles.releaseContainer}>
-                        <AuthorImage
-                            size={55}
-                            imageBorder={styles.imageBorder}
-                            imageUrl={imageUrl}
-                            disabled
-                        />
+                        <TouchableOpacity onPress={navigateToUserProfile} testID="authorImage">
+                            <AuthorImage                          
+                                size={55}
+                                imageBorder={styles.imageBorder}
+                                imageUrl={imageUrl}
+                                disabled
+                            />
+                        </TouchableOpacity>
                         <View style={styles.releaseBox}>
                             <Text style={styles.releaseText}>
                                 {item?.fromUser.displayName}'s Team
@@ -192,7 +202,13 @@ const NotificationItem = ({ item }) => {
                         </View>
                     </View>
                 ) : (
-                    <AuthorImage size={55} imageUrl={imageUrl} disabled />
+                    <AuthorImage 
+                    size={55} 
+                    imageUrl={imageUrl} 
+                    disabled={false}
+                    author={item.fromUser}
+                    fromScreen="Notification"
+                />
                 )}
             </View>
 

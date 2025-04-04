@@ -23,8 +23,8 @@ const BurstSpecificChannelModal = ({
     userName,
     handleBurst,
     postId,
-    selectedItems,
-    setSelectedItems,
+    // selectedItems,
+    // setSelectedItems,
     burstInfo,
     setBurstInfo,
     burstedChannels,
@@ -36,7 +36,7 @@ const BurstSpecificChannelModal = ({
 }) => {
     const [myChannels, setMyChannels] = useState([]);
     const [suggestedChannels, setSuggestedChannels] = useState([]);
-    // const [selectedItems, setSelectedItems] = useState([]);
+    const [selectedItems, setSelectedItems] = useState([]);
     const [initialSelectedItems, setInitialSelectedItems] = useState([]);
     // const [burstInfo, setBurstInfo] = useState({});
     const [checkIsAuthor, setCheckIsAuthor] = useState(false);

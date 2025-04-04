@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/core";
-import React from "react";
+import React, { useState } from "react";
 import {
     Dimensions,
     Image,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import RBSheet from "react-native-raw-bottom-sheet";
+import { Skeleton } from "react-native-skeletons"; // Import Skeleton component
 import { defaultAvatar } from "../../config/constants";
 import theme from "../../config/theme";
 import useApp from "../../hooks/useApp";
@@ -39,23 +40,35 @@ const MemberList = ({
                 userId: id,
             });
         }
-        // setShowMemberListModal(false);
     };
 
     const sortedMembers = ownerId
         ? membersInfo.sort((a, b) =>
-              a.id === ownerId ? -1 : b.id === ownerId ? 1 : 0,
-          )
+            a.id === ownerId ? -1 : b.id === ownerId ? 1 : 0,
+        )
         : membersInfo;
+
+    const [imageLoadedStates, setImageLoadedStates] = useState(
+        new Array(sortedMembers.length).fill(false)
+    );
+
+    const handleImageLoad = (index) => {
+        setImageLoadedStates((prev) => {
+            const newState = [...prev];
+            newState[index] = true;
+            return newState;
+        });
+    };
 
     return (
         <RBSheet
             ref={sheetRef}
             height={Dimensions.get("screen").height * 0.85}
             draggable
-            openDuration={400}
-            closeDuration={200}
+            openDuration={100}
+            closeDuration={150}
             customStyles={{ container: styles.modalContainer }}
+            onClose={() => { setShowMemberListModal(false) }}
         >
             <Text style={styles.channelName}>{channelName}</Text>
             <ScrollView
@@ -70,14 +83,28 @@ const MemberList = ({
                                 onPress={() => goToUserProfile(user)}
                                 style={styles.user}
                             >
-                                <Image
-                                    source={{
-                                        uri:
-                                            user.profileImage ||
-                                            "https://curiouploads.s3.us-east-1.amazonaws.com/static-app-assets/default-profile",
-                                    }}
-                                    style={styles.memberImage}
-                                />
+                                <View style={styles.imageContainer}>
+                                    {!imageLoadedStates[index] && (
+                                        <Skeleton
+                                            width={50}
+                                            height={50}
+                                            borderRadius={30}
+                                            style={styles.skeleton}
+                                        />
+                                    )}
+                                    <Image
+                                        source={{
+                                            uri:
+                                                user.profileImage ||
+                                                "https://curiouploads.s3.us-east-1.amazonaws.com/static-app-assets/default-profile",
+                                        }}
+                                        style={[
+                                            styles.memberImage,
+                                            { opacity: imageLoadedStates[index] ? 1 : 0 },
+                                        ]}
+                                        onLoad={() => handleImageLoad(index)}
+                                    />
+                                </View>
                             </TouchableOpacity>
                             <Text style={styles.memberName}>
                                 {user.name || user.displayName}
@@ -129,9 +156,15 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         width: "80%",
     },
-    memberImage: {
+    imageContainer: {
         width: 50,
         height: 50,
+        borderRadius: 30,
+        overflow: "hidden",
+    },
+    memberImage: {
+        width: "100%",
+        height: "100%",
         borderRadius: 30,
         borderColor: "#cccccc50",
         borderWidth: 1,
@@ -153,6 +186,9 @@ const styles = StyleSheet.create({
         color: "#aaa",
         fontSize: 14,
         paddingHorizontal: 4,
+    },
+    skeleton: {
+        position: "absolute",
     },
 });
 

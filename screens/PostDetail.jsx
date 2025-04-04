@@ -1,6 +1,7 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/core";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+    DeviceEventEmitter,
     FlatList,
     SafeAreaView,
     StyleSheet,
@@ -18,7 +19,7 @@ import usePosts from "../hooks/usePosts";
 import { isScrollEnded } from "../services/util";
 
 const PostDetail = ({ route }) => {
-    const { post, isShared } = route.params;
+    const { post, isShared, refreshCallback , removeLocalReply} = route.params;
     const navigation = useNavigation();
     const { userData, userJoinedChannels } = useApp();
     const { getPost, getReplies, getSharedPost } = usePosts();
@@ -144,6 +145,10 @@ const PostDetail = ({ route }) => {
 
     const addLocalReply = (reply) => {
         setReplies((replies) => [...replies, reply]);
+        if (route.params?.onAddReply) {
+            route.params.onAddReply(reply);
+          }
+          DeviceEventEmitter.emit('replyAdded', reply);
     };
 
     const handleLoadMore = () => {
@@ -151,6 +156,59 @@ const PostDetail = ({ route }) => {
             setPage((prevPage) => prevPage + 1);
         }
     };
+
+    const removeReply = (id) => {
+        setReplies((prevReplies) => {
+            const updatedReplies = prevReplies.filter((reply) => reply.id !== id);
+            setReplyLength(updatedReplies.length);
+    
+            // Decrement the reply count in postData
+            setPostData((prevPostData) => ({
+                ...prevPostData,
+                counts: {
+                    ...prevPostData.counts,
+                    reply: prevPostData.counts.reply - 1,
+                },
+            }));
+            if (removeLocalReply) {
+                removeLocalReply(id, postData.id);
+            }
+            return updatedReplies;
+        });
+        DeviceEventEmitter.emit('replyRemoved', {
+            replyId: id,
+            parentPostId: postData.id
+        })
+    };
+
+    const removePost = (postId) => {      
+
+        if (postData?.replyingTo) {
+
+            removeReply(postId);
+
+            if (route.params?.onRemoveReply) {
+                route.params.onRemoveReply(postId, postData.replyingTo.id);
+                navigation.goBack();
+            }
+        } else {
+
+            navigation.goBack();
+        }
+    };
+
+
+   useEffect(() => {
+        if (postData) {
+            setPostData(prev => ({
+                ...prev,
+                counts: {
+                    ...prev.counts,
+                    reply: replies.length
+                }
+            }));
+        }
+    }, [replies.length]);
 
     const onScroll = ({ nativeEvent }) => {
         const scrollEnded = isScrollEnded(nativeEvent);
@@ -161,7 +219,9 @@ const PostDetail = ({ route }) => {
 
     const refreshPostDetail = async () => {
         await getPostData(postId);
-        setPage(1);
+        setReplies([]); 
+        setPage(1); 
+        getReplyData(1, postId); 
     };
     const ListFooterComponent = () => {
         const shouldShowLoader =
@@ -177,6 +237,14 @@ const PostDetail = ({ route }) => {
             </View>
         );
     };
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+          
+            refreshPostDetail();
+        });
+
+        return unsubscribe;
+    }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -185,7 +253,7 @@ const PostDetail = ({ route }) => {
                     <TouchableOpacity
                         onPress={navigation.goBack}
                         style={styles.backIcon}
-                        testID="post-detail-back"
+                        testID="back_button"
                     >
                         <LeftArrowSVG />
                     </TouchableOpacity>
@@ -218,6 +286,8 @@ const PostDetail = ({ route }) => {
                             itemIndex={index}
                             onRefresh={refreshPostDetail}
                             myChannels={myChannels}
+                            removePost={removeReply}
+                            removeLocalReply={removeLocalReply}
                             authors={[
                                 originalPostData?.author?.userName,
                                 postData?.author?.userName,
@@ -238,6 +308,7 @@ const PostDetail = ({ route }) => {
                                     userData={userData}
                                     onRefresh={refreshPostDetail}
                                     myChannels={myChannels}
+                                    removePost={removeReply}                          
                                     authors={[
                                         originalPostData?.author?.userName,
                                     ]}
@@ -260,11 +331,13 @@ const PostDetail = ({ route }) => {
                                     hasReplies={replies.length > 0}
                                     onRefresh={refreshPostDetail}
                                     myChannels={myChannels}
+                                    removePost={removePost}
                                     authors={[
                                         originalPostData?.author?.userName,
                                         postData?.author?.userName,
                                     ].filter(Boolean)}
                                     ERTVersionUserIds={ERTVersionUserIds}
+                                    isSingleReply={true}
                                 />
                             )}
 

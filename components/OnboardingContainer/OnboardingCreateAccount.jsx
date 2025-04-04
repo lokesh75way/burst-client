@@ -113,14 +113,20 @@ const OnboardingCreateAccount = ({
     //         setLoading(false);
     //     }
     // };
+
+
+
     const getAllChannels = async () => {
-        try {
-            const userChannelsData = await getMyChannels();
-            setJoinedChannels(userChannelsData.joinedPublicChannels);
-        } catch (err) {
-            console.log("Error in fetching channels", err);
-        }
-    };
+    try {
+        const userChannelsData = await getMyChannels();
+        const filteredJoined = userChannelsData.joinedPublicChannels.filter(
+            (channel) => channel.tag !== "#everyone",
+        );
+        setJoinedChannels(filteredJoined); 
+    } catch (err) {
+        console.log("Error in fetching channels", err);
+    }
+};
 
     // useEffect(() => {
     // getInviter();
@@ -307,6 +313,7 @@ const OnboardingCreateAccount = ({
                                             color={color}
                                             bgColor={userBgColor}
                                             outlinedColor={outlinedColor}
+                                            fromTeam={true}
                                             onPress={() => {
                                                 onClickHandler(
                                                     user.id,

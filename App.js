@@ -1,16 +1,18 @@
+import NetInfo from "@react-native-community/netinfo";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Font from "expo-font";
 import * as Notifications from "expo-notifications";
 import registerNNPushToken from "native-notify";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import ErrorBoundary from "react-native-error-boundary";
 import FlashMessage from "react-native-flash-message";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ErrorBoundaryFallback from "./components/ErrorBoundaryFallback";
+import InternetBottomSheet from "./components/Modal/InternetBottomSheet";
 import Tabs from "./components/Tabs";
 import { notificationCode, notificationNumber } from "./config/constants";
 import useApp from "./hooks/useApp";
@@ -125,6 +127,20 @@ function MainTabs() {
 
 export default function APP() {
     registerNNPushToken(notificationNumber, notificationCode);
+    const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener((state) => {
+            const connected = state.isConnected;
+            setIsBottomSheetVisible(!connected);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const handleCloseBottomSheet = () => {
+        setIsBottomSheetVisible(false);
+    };
     return (
         <SafeAreaProvider>
             <PaperProvider>
@@ -140,6 +156,10 @@ export default function APP() {
                                 textAlign: "center",
                                 fontWeight: 600,
                             }}
+                        />
+                        <InternetBottomSheet
+                            isVisible={isBottomSheetVisible}
+                            onClose={handleCloseBottomSheet}
                         />
                     </AppProvider>
                 </ErrorBoundary>

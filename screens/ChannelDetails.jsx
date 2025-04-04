@@ -4,16 +4,16 @@ import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     DeviceEventEmitter,
-    FlatList,
     SafeAreaView,
     StatusBar,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { Divider } from "react-native-elements";
 import { showMessage } from "react-native-flash-message";
 
+import { FlashList } from "@shopify/flash-list";
 import Button from "../components/Button";
 import MemberList from "../components/Channels/MemberList";
 import StackedImages from "../components/Channels/StackedImages";
@@ -157,10 +157,37 @@ const ChannelDetails = ({ route }) => {
         loadChannelInfo();
     }, []);
 
+    // const toggleJoin = async () => {
+    //     if (isLoading) {
+    //         return;
+    //     }
+    //     if (isEveryone) {
+    //         showMessage({
+    //             message: "You can't leave #everyone channel.",
+    //             type: "info",
+    //         });
+    //         return;
+    //     }
+    //     const type = isJoined ? "remove" : "add";
+    //     try {
+    //         setIsLoading(true);
+    //         await addRemoveUser(channelId, { type });
+    //         DeviceEventEmitter.emit("getChannels");
+    //         setIsJoined(!isJoined);
+    //         route.params.isJoined = !isJoined;
+    //         await getChannelData();
+    //     } catch (e) {
+    //         console.log(e);
+    //     } finally {
+    //         setIsLoading(false);
+    //         invokeRefresh();
+    //     }
+    // }; 
+
+
     const toggleJoin = async () => {
-        if (isLoading) {
-            return;
-        }
+        if (isLoading) return;
+
         if (isEveryone) {
             showMessage({
                 message: "You can't leave #everyone channel.",
@@ -168,21 +195,36 @@ const ChannelDetails = ({ route }) => {
             });
             return;
         }
-        const type = isJoined ? "remove" : "add";
+
+        const newJoinStatus = !isJoined;
+        const type = newJoinStatus ? "add" : "remove";
         try {
+            setIsJoined(newJoinStatus);
+            route.params.isJoined = newJoinStatus;
             setIsLoading(true);
             await addRemoveUser(channelId, { type });
             DeviceEventEmitter.emit("getChannels");
-            setIsJoined(!isJoined);
-            route.params.isJoined = !isJoined;
             await getChannelData();
-        } catch (e) {
-            console.log(e);
+
+        } catch (error) {
+            setIsJoined(!newJoinStatus);
+            route.params.isJoined = !newJoinStatus;
+            showMessage({
+                message: `Failed to ${type} channel. Please try again.`,
+                type: "danger",
+            });
         } finally {
             setIsLoading(false);
             invokeRefresh();
         }
-    }; const removePost = (id) => {
+    };
+    useEffect(() => {
+        if (memberVisible) {
+            memberListSheetRef?.current?.open();
+        }
+    }, [memberVisible]);
+    
+    const removePost = (id) => {
         setChannelFeedData((prevFeedData) =>
             prevFeedData.filter((post) => post.id !== id),
         );
@@ -248,7 +290,7 @@ const ChannelDetails = ({ route }) => {
                             paddingLeft: "20%",
                         }}
                         onPress={() => {
-                            memberListSheetRef?.current?.open();
+                            setMemberVisible(true);
                         }}
                     >
                         <StackedImages images={firstThreeImages} />
@@ -326,10 +368,52 @@ const ChannelDetails = ({ route }) => {
         );
     };
 
+    const addLocalReply = (newReply) => {
+
+        setChannelFeedData((prevFeedData) => {
+            return prevFeedData.map((post) => {
+                if (post.id === newReply.postId) {
+                    const updatedPost = {
+                        ...post,
+                        replies: Array.isArray(post.replies)
+                            ? [...post.replies, newReply]
+                            : [newReply],
+                        counts: {
+                            ...post.counts,
+                            reply: (post.counts.reply || 0) + 1
+                        }
+                    };
+                    return updatedPost;
+                }
+                return post;
+            });
+        });
+    }
+
+    const removeLocalReply = (replyId, postId) => {
+        setChannelFeedData((prevFeedData) => {
+            return prevFeedData.map((post) => {
+                if(post.id === postId){
+                    const updatedReplies = post.replies.filter((reply) => reply.id !== replyId) || []
+
+                    return {
+                        ...post,
+                        replies: updatedReplies,
+                        counts: {
+                            ...post.counts,
+                            reply: Math.max(0, post.counts.reply || 0) - 1
+                        }
+                    };
+                }
+                return post
+            })
+        })
+    }
+
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-            <SafeAreaView>
+            <SafeAreaView style={{ flex: 1 }}>
                 <View
                     style={{
                         flexDirection: "row",
@@ -354,9 +438,10 @@ const ChannelDetails = ({ route }) => {
                             flexDirection: "row",
                             alignItems: "center",
                             gap: 5,
+                            maxWidth: "90%"
                         }}
                     >
-                        {channelInfo.type === "private" && (
+                        {channelInfo?.type === "private" && (
                             <FontAwesome5
                                 name="lock"
                                 size={18}
@@ -369,7 +454,9 @@ const ChannelDetails = ({ route }) => {
                                 fontSize: 24,
                                 color: theme.colors.lightBlue,
                                 fontWeight: "600",
+                                textAlign: "center",
                             }}
+                            numberOfLines={1}
                         >
                             {channelTag}
                         </Text>
@@ -379,6 +466,7 @@ const ChannelDetails = ({ route }) => {
                 {isUnavailable && (
                     <View
                         style={{
+                            flex: 1,
                             alignItems: "center",
                             padding: 12,
                             borderRadius: 10,
@@ -413,44 +501,40 @@ const ChannelDetails = ({ route }) => {
                         {(channelFeedData.length === 0 || !isJoined) && (
                             <ChannelInfoCard />
                         )}
-                        {channelFeedData.length > 0 &&
-                            !isDataLoading &&
-                            isJoined && (
-                                <FlatList
-                                    removeClippedSubviews={totalMemory <= 4}
-                                    scrollEnabled
-                                    initialNumToRender={4}
-                                    maxToRenderPerBatch={4}
-                                    ref={flatListRef}
-                                    data={channelFeedData}
-                                    keyExtractor={(item) => item.id}
-                                    ListHeaderComponent={<ChannelInfoCard />}
-                                    renderItem={({ item, index }) => (
-                                        <FeedPost
-                                            content={channelFeedData}
-                                            postIndex={index}
-                                            post={item}
-                                            type="feed"
-                                            userData={userData}
-                                            isMainFeed={true}
-                                            myChannels={myChannels}
-                                            currentChannel={channelId}
-                                            removePost={removePost}
-                                            isChannelDetail={true}
-                                            ERTVersionUserIds={
-                                                ERTVersionUserIds
-                                            }
-                                        />
-                                    )}
-                                    onEndReached={getNextPage}
-                                    onEndReachedThreshold={0.5}
-                                    ListFooterComponent={
-                                        <ListFooterComponent />
-                                    }
-                                    showsVerticalScrollIndicator={false}
-                                    keyboardShouldPersistTaps="handled"
-                                />
-                            )}
+                        {channelFeedData.length > 0 && !isDataLoading && isJoined && (
+                            <FlashList
+                                removeClippedSubviews={totalMemory <= 4}
+                                pointerEvents={isLoading ? "none" : "auto"}
+                                scrollEnabled
+                                estimatedItemSize={200} // Add this - estimate your item height
+                                ref={flatListRef}
+                                data={channelFeedData}
+                                keyExtractor={(item) => item.id}
+                                ListHeaderComponent={<ChannelInfoCard />}
+                                renderItem={({ item, index }) => (
+                                    <FeedPost
+                                        content={channelFeedData}
+                                        postIndex={index}
+                                        post={item}
+                                        type="feed"
+                                        userData={userData}
+                                        isMainFeed={true}
+                                        myChannels={myChannels}
+                                        currentChannel={channelId}
+                                        removePost={removePost}
+                                        isChannelDetail={true}
+                                        addLocalReply={addLocalReply}
+                                        ERTVersionUserIds={ERTVersionUserIds}
+                                        removeLocalReply={removeLocalReply}
+                                    />
+                                )}
+                                onEndReached={getNextPage}
+                                onEndReachedThreshold={0.5}
+                                ListFooterComponent={<ListFooterComponent />}
+                                showsVerticalScrollIndicator={false}
+                                keyboardShouldPersistTaps="handled"
+                            />
+                        )}
                         {channelFeedCount === 0 &&
                             !isDataLoading &&
                             isJoined && (
@@ -485,6 +569,7 @@ const ChannelDetails = ({ route }) => {
                 <CreateChannelModal
                     showCreateChannelModal={modalVisible}
                     setShowCreateChannelModal={setModalVisible}
+                    navigation={navigation}
                     onChannelCreate={async () => {
                         setModalVisible(false);
                         await getChannelData();
@@ -501,7 +586,7 @@ const ChannelDetails = ({ route }) => {
                 />
             )}
 
-            {!isUnavailable && members && channelInfo && (
+            {!isUnavailable && members && channelInfo && memberVisible && (
                 <MemberList
                     setShowMemberListModal={setMemberVisible}
                     membersInfo={members}

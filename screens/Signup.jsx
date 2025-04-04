@@ -224,7 +224,7 @@ const SignUp = ({ navigation }) => {
                                         <TextInput
                                             style={styles.input}
                                             placeholder="Email"
-                                            onChangeText={onChange}
+                                            onChangeText={(text) => onChange(text.toLowerCase())}
                                             value={value}
                                             keyboardType="email-address"
                                             textContentType="emailAddress"
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        // marginVertical: "2%",
+        marginVertical: "5%",
         padding: "5%",
     },
 

@@ -182,7 +182,7 @@ const Channels = ({ setRefreshBar }) => {
                             <>
                                 {userChannels.map((item, index) => (
                                     <ChannelItem
-                                        key={index}
+                                        key={item.id}
                                         item={item}
                                         isCreator
                                         isJoined={false}
@@ -198,10 +198,10 @@ const Channels = ({ setRefreshBar }) => {
                                     )}
                                 {joinedChannels.map((item, index) => (
                                     <ChannelItem
-                                        key={index}
+                                        key={item.id}
                                         item={item}
                                         isCreator={false}
-                                        isJoined
+                                        isJoined={true}
                                         handleRefresh={handleRefresh}
                                     />
                                 ))}
@@ -219,7 +219,7 @@ const Channels = ({ setRefreshBar }) => {
                         {!isLoading &&
                             recommendedChannels.map((item, index) => (
                                 <ChannelItem
-                                    key={index}
+                                    key={item.id}
                                     item={item}
                                     isCreator={false}
                                     isJoined={false}

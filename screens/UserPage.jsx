@@ -22,7 +22,7 @@ import useSocials from "../hooks/useSocials";
 import useUsers from "../hooks/useUsers";
 
 const UserPage = ({ route }) => {
-    const { userName, avatar, userId,fromTeam } = route.params;
+    const { userName, avatar, userId, fromTeam, fromScreen } = route.params;
     const [isModalVisible, setModalVisible] = useState(false);
     const [circle, setCircle] = useState(0);
     const [postList, setPostList] = useState([]);
@@ -33,6 +33,7 @@ const UserPage = ({ route }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [displayName, setDisplayName] = useState();
+    const [totalPostCount, setTotalPostCount] = useState(0);
 
     const navigation = useNavigation();
 
@@ -42,30 +43,38 @@ const UserPage = ({ route }) => {
      * @function fetchData
      * @returns {void}
      */
-    async function fetchData() {
-        try {
-            setIsLoading(true);
-            const data = await getProfile(userId);
-            setDisplayName(data.displayName);
-            setPostList(data.posts);
-        } catch (error) {
-            console.log("Error: ", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
 
     useEffect(() => {
-        // Only fetch data when the screen is in focus
+
+        async function fetchData() {
+            try {
+                setIsLoading(true);
+                const data = await getProfile(userId);
+                    setDisplayName(data.displayName);
+                    setPostList(data.posts);
+                    setTotalPostCount(data.totalPostCount);
+                
+            } catch (error) {
+                console.log("Error: ", error);
+            } finally {
+                
+                    setIsLoading(false);
+                
+            }
+        }
+
         if (isFocused) {
             fetchData();
         }
+
         return () => {
             setPostList([]);
+            setPostList([]);
+            setDisplayName('');
+            setTotalPostCount(0);
         };
-    }, [isFocused]);
+    }, [isFocused, userId]);
 
-    // const containerStyle = {backgroundColor: 'white'};
 
     /**
      * Adds users with a specified level.
@@ -98,11 +107,27 @@ const UserPage = ({ route }) => {
         try {
             setRefreshing(true);
             const data = await getProfile(userId);
-            setPostList(data.posts);
+            setPostList(data.posts);          
+            setTotalPostCount(data.totalPostCount);
         } catch (error) {
             console.error(error);
         } finally {
             setRefreshing(false);
+        }
+    };
+    const handleBackPress = () => {
+        if (!fromTeam && !fromScreen) {
+            navigation.goBack();
+            return;
+        }
+        if (fromScreen === "YourTeam") {
+            navigation.navigate("YourTeam");
+        } 
+        else if (fromScreen === "Notification") { 
+            navigation.navigate("Notification");
+        }
+        else {
+            navigation.goBack();
         }
     };
 
@@ -110,11 +135,8 @@ const UserPage = ({ route }) => {
         <Provider>
             <View style={styles.container}>
                 <TouchableOpacity
-                    onPress={() => {
-                        fromTeam?
-                        navigation.navigate("YourTeam"):
-                        navigation.goBack();
-                    }}
+                    testID="user-page-back-button"
+                    onPress={handleBackPress}
                     style={styles.backButton}
                 >
                     <LeftArrowSVG />
@@ -129,7 +151,7 @@ const UserPage = ({ route }) => {
                     >
                         {!isLoading && (
                             <CachedImage
-                                key={avatar}
+                                key={`${avatar}-${userId}`}
                                 source={{ uri: imageUrl }}
                                 style={styles.avatar}
                                 resizeMode="cover"
@@ -157,6 +179,7 @@ const UserPage = ({ route }) => {
                         <Text style={styles.userName} numberOfLines={1}>
                             @{userName}
                         </Text>
+                        <Text style={styles.postCountText}>Posts: {totalPostCount ?? postList.length}</Text>
                     </View>
                 </View>
                 <Divider width={1.5} />
@@ -190,8 +213,9 @@ const UserPage = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingVertical: 40,
-        backgroundColor: "#fff",
+        // paddingVertical: 40,
+        paddingTop: 40,
+        backgroundColor: "#fff",    
     },
     avatarContainer: {
         paddingVertical: 20,
@@ -288,6 +312,12 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         color: theme.colors.grey,
         fontSize: 16,
+    },
+    postCountText: {
+        fontSize: 16,
+        color: "#666",
+        marginTop: 5,
+        
     },
 });
 

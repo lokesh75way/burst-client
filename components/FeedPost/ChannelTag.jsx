@@ -27,6 +27,8 @@ const ChannelTag = ({
     const [showJoinAndBurstModal, setShowJoinAndBurstModal] = useState(false);
     const { reviewPost } = usePosts();
     const [alreadyBurstedIds, setAlreadyBurstedIds] = useState([]);
+    const [isBursting, setIsBursting] = useState(false);
+    const lastPressTime = useRef(0)
 
     useEffect(() => {
         if (!burstedChannels || !Array.isArray(burstedChannels)) {
@@ -125,10 +127,10 @@ const ChannelTag = ({
                     .map((ch) =>
                         ch.id === channel.id
                             ? {
-                                  ...ch,
-                                  burstCount: ch.burstCount - 1,
-                                  isBurstedByUser: false,
-                              }
+                                ...ch,
+                                burstCount: ch.burstCount - 1,
+                                isBurstedByUser: false,
+                            }
                             : ch,
                     )
                     .filter((ch) => ch.burstCount > 0);
@@ -172,6 +174,7 @@ const ChannelTag = ({
 
                 return (
                     <TouchableOpacity
+                    testID="burst-channel-chip"
                         key={index}
                         activeOpacity={0.75}
                         disabled={disabled}
@@ -188,22 +191,35 @@ const ChannelTag = ({
                             paddingVertical: isProfilePage ? 2 : 6,
                         }}
                         onPress={() => {
-                            // if (!isCurrentUserMember) return;
-                            const isJoined = channel.isCommon;
-
-                            setSelectedChannel(channel);
-                            if (!isBurstedByUser) {
-                                if (!isJoined) {
-                                    setShowJoinAndBurstModal(true);
-                                } else {
-                                    burstPost(channel);
-                                }
-                            } else {
-                                unBurstPost(channel);
+                            const now = Date.now();
+                            if (
+                                now - lastPressTime.current < 1000 ||
+                                isBursting
+                            ) {
+                                return; 
                             }
-                            // burstEventEmitter();
-                        }}
-                        testID="burst-channel-chip"
+                            lastPressTime.current = now;
+                            try {
+                                
+                                setIsBursting(true);
+                                const isJoined = channel.isCommon;
+                                setSelectedChannel(channel);
+                                if (!isBurstedByUser) {
+                                    if (!isJoined) {
+                                        setShowJoinAndBurstModal(true);
+                                    } else {
+                                        burstPost(channel);
+                                    }
+                                } else {
+                                    unBurstPost(channel);
+                                }
+                            } catch (error) {
+                                console.log(error);
+                            } finally {
+                                setIsBursting(false);
+                            }
+                            
+                        }}                     
                     >
                         {channel.type === "private" && (
                             <FontAwesome5

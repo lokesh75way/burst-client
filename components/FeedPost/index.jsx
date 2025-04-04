@@ -50,6 +50,8 @@ const FeedPost = (props) => {
         isChannelDetail = false,
         authors = [],
         ERTVersionUserIds = [],
+        isSingleReply,
+        removeLocalReply 
     } = props;
     const {
         author,
@@ -71,6 +73,7 @@ const FeedPost = (props) => {
         setPostReactions,
         globalBurstedChannels,
         setGlobalBurstedChannels,
+        setReloadProfile
     } = useApp();
     const userId = storage.id;
 
@@ -110,14 +113,14 @@ const FeedPost = (props) => {
     };
 
     useEffect(() => {
-        if (post && post.burstedChannels) { 
+        if (post && post.burstedChannels) {
             const flattened = flattenChannels(post.burstedChannels);
             setBurstedChannels(flattened);
             setGlobalBurstedChannels((prev) => ({
                 ...prev,
                 [post.id]: flattened,
             }));
-    
+
         }
     }, [post.burstedChannels]);
 
@@ -147,12 +150,18 @@ const FeedPost = (props) => {
     const validCount = betaReviews.filter((obj) => obj.approved).length;
     const [burstCount, setBurstCount] = useState(validCount);
     const goToDetail = (type) => {
+        if (isSingleReply) return;
         if (postRef.current && !postRef.current.disabled) {
             postRef.current.disabled = true;
             navigation.push("PostDetailStack", {
                 screen: "PostDetail",
                 params: {
                     post: type === "quote" ? quote : post,
+                    removeLocalReply: removeLocalReply,
+                    onAddReply: (newReply) => addLocalReply(newReply),
+                    onRemoveReply: (replyId, parentPostId) => {
+                        removeLocalReply(replyId, parentPostId);
+                    }
                 },
             });
             setTimeout(() => {
@@ -341,12 +350,28 @@ const FeedPost = (props) => {
                 {
                     text: "Confirm",
                     style: "destructive",
+                    // onPress: async () => {
+                    //     try {
+                    //         await deletePost(postId);
+                    //         removePost(postId);
+                    //     } catch (error) {
+                    //         console.log(error);
+                    //     }
+                    // },
                     onPress: async () => {
                         try {
                             await deletePost(postId);
-                            if (onRefresh) {
-                                onRefresh();
+                            // Check if this is a reply (has a parent post)
+                            if (post.replyingTo) {
+                                // For replies, we need to pass the parent post ID
+                                removePost(postId)
+
+                            } else {
+                                // For regular posts, use the existing behavior
+                                removePost(postId);
                             }
+
+                            setReloadProfile(true);
                         } catch (error) {
                             console.log(error);
                         }
@@ -365,10 +390,14 @@ const FeedPost = (props) => {
         [media],
     );
 
-    const imageUrl = useMemo(
-        () => getImageUrl(profileImageKey),
-        [profileImageKey],
-    );
+    const imageUrl = useMemo(() => {
+
+        return getImageUrl(
+            author.id === parseInt(userId) ? userData?.profileImageKey : profileImageKey
+        );
+ 
+    }, [profileImageKey, userData]);
+
     const timeString = useMemo(() => getDateText(createdAt), [createdAt]);
     const timeStamp = dayjs(createdAt);
     const hourMinString = `${timeStamp.format("HH")}:${timeStamp.format("mm")}`;
@@ -379,24 +408,24 @@ const FeedPost = (props) => {
         postTypes.single
             ? styles.feedContainer
             : postTypes.feedReply
-              ? styles.replyContainer
-              : styles.feedContainer,
+                ? styles.replyContainer
+                : styles.feedContainer,
 
         ertNoReply &&
-            (ERTVersionUserIds.includes(author.id) ||
-                author.id === userData?.id) &&
-            styles.replyContainer,
+        (ERTVersionUserIds.includes(author.id) ||
+            author.id === userData?.id) &&
+        styles.replyContainer,
         replies.length === 0 && styles.border,
         isPressed &&
-            (ERTVersionUserIds.includes(author.id) ||
-                author.id === userData?.id) &&
-            styles.ert,
+        (ERTVersionUserIds.includes(author.id) ||
+            author.id === userData?.id) &&
+        styles.public,
         isPressed &&
-            !(
-                ERTVersionUserIds.includes(author.id) ||
-                author.id === userData?.id
-            ) &&
-            styles.public,
+        !(
+            ERTVersionUserIds.includes(author.id) ||
+            author.id === userData?.id
+        ) &&
+        styles.public,
     ];
     const isERTReply =
         (ERTVersionUserIds.includes(author.id) || author.id === userData?.id) &&
@@ -428,18 +457,21 @@ const FeedPost = (props) => {
                     )}
                 <TouchableOpacity
                     ref={postRef}
+                    testID="post"
                     onPress={goToDetail}
                     onPressIn={() => {
                         setIsPressed(true);
                     }}
                     onPressOut={() => {
+
                         setIsPressed(false);
+
                     }}
                     activeOpacity={1}
                     style={containerStyles}
                     disabled={postTypes.single}
                     accessible={false}
-                    testID="post"
+                   
                 >
                     {/* {postTypes.single && (
                         <View style={styles.infoContainer}>
@@ -469,6 +501,7 @@ const FeedPost = (props) => {
                                     author.id === userData?.id
                                 ) && <View style={styles.upperConnector} />}
                             <AuthorImage
+                                key={imageUrl}
                                 size={48}
                                 isERT={ertNoReply}
                                 imageUrl={imageUrl}
@@ -484,11 +517,11 @@ const FeedPost = (props) => {
                         style={[
                             styles.postContainer,
                             postTypes.feedReply &&
-                                !(
-                                    ERTVersionUserIds.includes(author.id) ||
-                                    author.id === userData?.id
-                                ) &&
-                                styles.topPadding,
+                            !(
+                                ERTVersionUserIds.includes(author.id) ||
+                                author.id === userData?.id
+                            ) &&
+                            styles.topPadding,
                         ]}
                     >
                         {showRipple && (
@@ -567,6 +600,7 @@ const FeedPost = (props) => {
                         {/* // )} */}
                         {text && (
                             <PostText
+                                testID="post"
                                 text={text}
                                 textStyles={styles.text}
                                 taggedUsers={post.tagedUsers}
@@ -580,6 +614,7 @@ const FeedPost = (props) => {
                         />
                         {quote && (
                             <QuotePreview
+                                userData={userData}
                                 onPress={() => {
                                     goToDetail("quote");
                                 }}
@@ -667,6 +702,11 @@ const FeedPost = (props) => {
                                 replies[0].author?.userName,
                             ].filter(Boolean)}
                             ERTVersionUserIds={ERTVersionUserIds}
+                            addLocalReply={(newReply) => {
+                                if (addLocalReply && typeof addLocalReply === 'function') {
+                                    addLocalReply(newReply);
+                                }
+                            }}
                         />
                     )}
             </View>
@@ -689,12 +729,24 @@ const FeedPost = (props) => {
                     onRefresh={onRefresh}
                 />
             )}
+
             {showReplyModal && (
                 <PostReplyModal
                     post={post}
                     userData={userData}
                     userName={userName}
-                    addLocalReply={addLocalReply}
+                    addLocalReply={(newReply) => {
+
+                        if (addLocalReply && typeof addLocalReply === 'function') {
+                            addLocalReply(newReply);
+                        }
+                    }}
+
+                    removeLocalReply={(replyId) => {
+                        if (removeLocalReply && typeof removeLocalReply === 'function') {
+                            removeLocalReply(replyId, post.id)
+                        }
+                    }}
                     setReplyCount={setReplyCount}
                     onCancel={() => {
                         setShowReplyModal(false);
@@ -793,7 +845,7 @@ const styles = StyleSheet.create({
     replyHeader: {
         borderLeftColor: "#CED5DC",
         borderLeftWidth: 2,
-        // backgroundColor: "#66C32E",
+        //  backgroundColor: "#66C32E",
         paddingVertical: 8,
         marginLeft: 38,
         marginBottom: 2,

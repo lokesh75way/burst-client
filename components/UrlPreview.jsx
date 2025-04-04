@@ -35,9 +35,9 @@ const UrlPreview = ({ part }) => {
     ];
 
     const handleBurstShareUrl = (url) => {
-        const postIdExist = url.match(/postId=(\d+)/);
-        if (postIdExist) {
-            const postId = postIdExist[1];
+        const postIdMatch = url.match(/\/posts\/public\/(\d+)/);
+        if (postIdMatch) {
+            const postId = postIdMatch[1];
 
             navigation.push("PostDetailStack", {
                 screen: "PostDetail",
@@ -57,7 +57,7 @@ const UrlPreview = ({ part }) => {
             text={part}
             renderLinkPreview={({ previewData }) => {
                 const isBurstShare = part.includes(
-                    "stanfordhci.github.io/burst-share",
+                    process.env.EXPO_PUBLIC_SHARE_URL,
                 );
 
                 const hasImage = !!previewData?.image?.url;

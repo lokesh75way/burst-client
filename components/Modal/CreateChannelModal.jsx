@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     View,
+    DeviceEventEmitter
 } from "react-native";
 import { Button } from "react-native-elements";
 import { showMessage } from "react-native-flash-message";
@@ -34,6 +35,7 @@ const CreateChannelModal = ({
     isEditMode,
     initialValues,
     sheetRef,
+    navigation
 }) => {
     const [step, setStep] = useState(0);
     const [channelName, setChannelName] = useState(
@@ -148,11 +150,30 @@ const CreateChannelModal = ({
         }
     };
 
+    const hasChanges = () => {
+        const descriptionChanged = description !== initialValues.description;
+
+        const membersChanged = newMembers.length > 0 ||
+                               removedMembers.length > 0 ||
+                               (initialAddedMembers.length !== addedMembers.length);
+        
+        return descriptionChanged || membersChanged;
+    }
+
+
     const handleToggleUser = (user) => {
         const index = addedMembers.findIndex((u) => u.id === user.id);
+        
         if (index === -1) {
+
             setAddedMembers((prev) => [...prev, user]);
-            setNewMembers((prev) => [...prev, user.id]);
+            if (removedMembers.includes(user.id)) {
+                setRemovedMembers((prev) => prev.filter((id) => id !== user.id));
+            }  
+            else if (!initialAddedMembers.some((u) => u.id === user.id)) {
+                setNewMembers((prev) => [...prev, user.id]);
+            }          
+            setSearchText("");
             return;
         }
 
@@ -162,10 +183,8 @@ const CreateChannelModal = ({
             setNewMembers((prev) => prev.filter((id) => id !== user.id));
         }
 
-        if (initialAddedMembers.some((u) => u.id === user.id)) {
+        else if (initialAddedMembers.some((u) => u.id === user.id)) {
             setRemovedMembers((prev) => [...prev, user.id]);
-        } else {
-            setRemovedMembers((prev) => prev.filter((id) => id !== user.id));
         }
     };
 
@@ -206,6 +225,11 @@ const CreateChannelModal = ({
 
     const handelEditChannel = async () => {
         console.log(initialValues.id);
+        if (!hasChanges()) {
+            setShowCreateChannelModal(false);
+            sheetRef?.current?.close();
+            return;
+        }
         setIsLoading(true);
         try {
             const payload = {
@@ -217,6 +241,7 @@ const CreateChannelModal = ({
             if (resp) {
                 onChannelCreate();
                 setShowCreateChannelModal(false);
+                DeviceEventEmitter.emit('refreshChannels');
                 sheetRef?.current?.close();
             }
         } catch (e) {
@@ -249,10 +274,15 @@ const CreateChannelModal = ({
         setIsLoading(true);
         try {
             await deleteChannel(initialValues.id);
+            DeviceEventEmitter.emit('refreshChannels');
             setIsLoading(false);
             onChannelCreate();
             setShowCreateChannelModal(false);
             sheetRef?.current?.close();
+
+            if (navigation) {
+                navigation.goBack();
+            }
         } catch (e) {
             console.error(e);
         }
@@ -491,50 +521,78 @@ const CreateChannelModal = ({
                 </TouchableWithoutFeedback>
             </Swiper>
             {!isLoading && (
-                <View
-                    style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
-                    <Button
-                        title={buttonLabel}
-                        buttonStyle={{
-                            width: isEditMode
-                                ? Dimensions.get("screen").width * 0.4
-                                : Dimensions.get("screen").width * 0.85,
-                            borderRadius: 20,
-                        }}
-                        disabled={
-                            step === 0
-                                ? channelName.length < 4 ||
-                                  description.length < 3
-                                : channelName.length < 4 ||
-                                  description.length < 3 ||
-                                  addedMembers.length < 2
-                        }
-                        onPress={handleChannelStepNavigation}
-                    />
-                    {isEditMode && (
-                        <Button
-                            title="Delete"
-                            buttonStyle={{
-                                width: Dimensions.get("screen").width * 0.4,
-                                borderRadius: 20,
-                                marginLeft: 10,
-                                backgroundColor: theme.colors.white,
-                                borderWidth: 2,
-                                borderColor: theme.colors.lightBlue,
-                            }}
-                            titleStyle={{
-                                color: theme.colors.lightBlue,
-                            }}
-                            onPress={confirmDelete}
-                        />
-                    )}
-                </View>
-            )}
+    <View style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    }}>
+        {!isEditMode ? (
+
+            <Button
+                title={step === 0 ? "Next" : "Create"}
+                buttonStyle={{
+                    width: Dimensions.get("screen").width * 0.85,
+                    borderRadius: 20,
+                }}
+                disabled={
+                    step === 0
+                        ? channelName.length < 4 || description.length < 3
+                        : channelName.length < 4 || 
+                          description.length < 3 || 
+                          addedMembers.length < 2
+                }
+                onPress={handleChannelStepNavigation}
+            />
+        ) : hasChanges() ? (
+            <Button
+                title="Save"
+                buttonStyle={{
+                    width: Dimensions.get("screen").width * 0.4,
+                    borderRadius: 20,
+                }}
+                disabled={
+                    step === 0
+                        ? channelName.length < 4 || description.length < 3
+                        : channelName.length < 4 || 
+                          description.length < 3 || 
+                          addedMembers.length < 2
+                }
+                onPress={handleChannelStepNavigation}
+            />
+        ) : (
+            <Button
+                title="Close"
+                buttonStyle={{
+                    width: Dimensions.get("screen").width * 0.4,
+                    borderRadius: 20,
+                }}
+                onPress={() => {
+                    setShowCreateChannelModal(false);
+                    sheetRef?.current?.close();
+                }}
+            />
+        )}
+
+        {isEditMode && (
+            <Button
+                title="Delete"
+                buttonStyle={{
+                    width: Dimensions.get("screen").width * 0.4,
+                    borderRadius: 20,
+                    marginLeft: 10,
+                    backgroundColor: theme.colors.white,
+                    borderWidth: 2,
+                    borderColor: theme.colors.lightBlue,
+                }}
+                titleStyle={{
+                    color: theme.colors.lightBlue,
+                }}
+                onPress={confirmDelete}
+            />
+        )}
+    </View>
+)}
+
             {isLoading && <ActivityIndicator color={theme.colors.lightBlue} />}
         </RBSheet>
     );

@@ -1,6 +1,7 @@
 import { deleteIndieNotificationInbox } from "native-notify";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useIsFocused } from '@react-navigation/native';
 
 import { notificationCode, notificationNumber } from "../../config/constants";
 import theme from "../../config/theme";
@@ -16,7 +17,7 @@ import NotificationItem from "./NotificationItem";
  */
 
 const NotificationList = (props) => {
-    const { data, loading, setPage, endReached, refreshing, onRefresh } = props;
+    const { data, loading, setPage, endReached, refreshing, onRefresh, activeRoute } = props;
     /**
      * State to manage notification data.
      * @type {[Array<any>, Function]}
@@ -29,6 +30,13 @@ const NotificationList = (props) => {
      * @type {[object, Function]}
      */
 
+    const flatListRef = useRef(null);
+
+    useEffect(() => {
+      if (activeRoute === 'Notification' && flatListRef.current) {
+        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
+    }, [activeRoute]);
     const [postDetails, setPostDetails] = useState({});
     const { getPost } = usePosts();
     const { storage, totalMemory } = useApp();
@@ -113,6 +121,7 @@ const NotificationList = (props) => {
     return (
         <View style={styles.list}>
             <FlatList
+                ref={flatListRef}
                 removeClippedSubviews={totalMemory <= 4}
                 data={data}
                 keyExtractor={(item) => item.id}

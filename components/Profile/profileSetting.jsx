@@ -57,7 +57,7 @@ const ProfileSetting = ({
     const [isUplaoding, setIsUploading] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { userData, setUserData } = useApp();
+    const { userData, setUserData, setReload } = useApp();
     const [displayNameError, setDisplayNameError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [confirmPasswordError, setConfirmPasswordError] = useState("");
@@ -250,6 +250,10 @@ const ProfileSetting = ({
             });
             await uploadProfileImage(data);
             setOldProfile(newKey);
+            setUserData(prevUserData => ({
+                ...prevUserData,
+                profileImageKey: newKey
+            }));        
             setLoading(false);
         } catch (error) {
             setAvatarSource(oldProfile);

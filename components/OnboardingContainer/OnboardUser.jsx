@@ -18,9 +18,11 @@ const OnboardUser = ({ onboardStep, setOnboardStep }) => {
     const [invitedEmails, setInvitedEmails] = useState([]);
     const swiperRef = useRef(null);
 
+
     const handleMomentumScrollEnd = (e, state, context) => {
         setOnboardStep(state.index);
     };
+
 
     return (
         <Swiper

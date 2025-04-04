@@ -5,6 +5,7 @@ import theme from "../../config/theme";
 import useChannels from "../../hooks/useChannels";
 import ChannelItem from "../Channels/ChannelItem";
 import SearchInput from "../Channels/SearchInput";
+import { useIsFocused } from "@react-navigation/core";
 const OnboardingChannels = ({
     onboardStep,
     setOnboardStep,
@@ -25,22 +26,34 @@ const OnboardingChannels = ({
         try {
             const userChannelsData = await getMyChannels();
             const filteredJoined = userChannelsData.joinedPublicChannels.filter(
-                (channel) => channel.tag !== "#everyone",
+                (channel) => channel.tag !== "#everyone"
             );
             setJoinedChannels(filteredJoined);
+    
             const recommendedChannelsData = await getChannels();
             const filteredRecommended = recommendedChannelsData
-                .slice(0, 10)
-                .filter((channel) => channel.tag !== "#everyone");
+                .filter(
+                    (channel) =>
+                        channel.tag !== "#everyone" &&
+                        !filteredJoined.some((joined) => joined.id === channel.id) // Exclude joined channels
+                )
+                .slice(0, 10); // Slice after filtering to maintain proper count
+    
             setRecommendedChannels(filteredRecommended);
         } catch (err) {
             console.log("Error in fetching channels", err);
         }
     };
-
     useEffect(() => {
         getDisplayChannels();
     }, []);
+        const isFocused = useIsFocused();
+    
+        useEffect(() => {
+            if (isFocused) {
+                setSearchText("");
+            }
+        }, [isFocused, onboardStep]);
 
     const handleRefresh = async () => {
         try {
@@ -82,10 +95,10 @@ const OnboardingChannels = ({
                 </View>
                 {joinedChannels.map((item, index) => (
                     <ChannelItem
-                        key={index}
+                        key={item.id}
                         item={item}
                         isCreator={false}
-                        isJoined
+                        isJoined={true}
                         handleRefresh={handleRefresh}
                         isDisabled
                     />
@@ -108,12 +121,13 @@ const OnboardingChannels = ({
                         </Text>
                         {recommendedChannels.map((item, index) => (
                             <ChannelItem
-                                key={index}
+                                key={item.id}
                                 item={item}
                                 isCreator={false}
-                                isJoined={joinedChannels.some(
-                                    (channel) => channel.id === item.id,
-                                )}
+                                // isJoined={joinedChannels.some(
+                                //     (channel) => channel.id === item.id,
+                                // )}
+                                isJoined={false}
                                 handleRefresh={handleRefresh}
                                 isDisabled
                             />
@@ -127,7 +141,7 @@ const OnboardingChannels = ({
                     searchResults.length !== 0 &&
                     searchResults.map((item, index) => (
                         <ChannelItem
-                            key={index}
+                            key={item.id}
                             item={item}
                             isCreator={false}
                             isJoined={joinedChannels.some(

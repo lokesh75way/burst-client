@@ -169,6 +169,8 @@ const SuggestChannelsModal = ({
                                             (ch) => ch.id === item.id,
                                         ) && styles.strikethrough,
                                     ]}
+                                    numberOfLines={2}
+                                    ellipsizeMode="tail"
                                 >
                                     {item.type === "private" && (
                                         <>
@@ -266,11 +268,14 @@ const SuggestChannelsModal = ({
                                         {
                                             ...styles.checkboxLabel,
                                             color: "#666",
+                                            width: "90%",
                                         },
                                         selectedChannels.some(
                                             (ch) => ch.id === item.id,
                                         ) && styles.strikethrough,
                                     ]}
+                                    numberOfLines={2}
+                                    ellipsizeMode="tail"
                                 >
                                     {item.type === "private" && (
                                         <>
@@ -326,6 +331,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         marginVertical: 5,
+        marginHorizontal: 5,
     },
     checkbox: {
         width: 24,
@@ -345,6 +351,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "500",
         color: theme.colors.lightBlue,
+        width: "90%",
     },
     strikethrough: {
         textDecorationLine: "line-through",

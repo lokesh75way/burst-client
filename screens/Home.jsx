@@ -22,8 +22,6 @@ import useLogs from "../hooks/useLogs";
 import useNotifications from "../hooks/useNotifications";
 import useUsers from "../hooks/useUsers";
 
-import mockFeedData from '../mock/feed.json';
-
 /**
  * Renders the Home component.
  * This component displays the main content of the application.
@@ -64,19 +62,6 @@ const Home = () => {
      * @function fetchData
      * @returns {void}
      */
-
-
-
-
-
-
-    const mockFeedForYou = async (page = 1) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(mockFeedData);
-            }, 1000); // Simulating network delay
-        });
-    };
     const fetchData = useCallback(async () => {
         if (isLoading || endReached || currentChannel !== 0) return;
         if (content.length >= feedLength) {
@@ -85,28 +70,29 @@ const Home = () => {
         }
         try {
             setIsLoading(true);
-            
-            // Use mock function instead of feedForYou for testing
-            const resp = await mockFeedForYou(page);
-            
+            const resp = await feedForYou(page);
             const responseTime = Date.now();
             const data = resp.posts;
             setFeedLength(resp.count);
-            
             if (data.length === 0) {
                 setPage((page) => page + 1);
                 setEndReached(true);
             }
-    
             const isInitial = page === 1;
             if (data) {
                 setContent((content) => {
-                    const combinedContent = isInitial ? data : [...content, ...data];
+                    // Combine current content with new data and filter unique values by 'id'
+                    const combinedContent = isInitial
+                        ? data
+                        : [...content, ...data];
+
                     return combinedContent;
                 });
-    
                 const contentSetTime = Date.now();
-                await logUIRenderTime(resp.logLatencyId, contentSetTime - responseTime);
+                await logUIRenderTime(
+                    resp.logLatencyId,
+                    contentSetTime - responseTime,
+                );
             }
         } catch (error) {
             console.log(error);
@@ -114,7 +100,8 @@ const Home = () => {
             setInitialLoad(false);
             setRefreshing(false);
             setIsLoading(false);
-            if (page < 2) {
+            // setPage(p => p + 1);
+            if (page < 3) {
                 setPage((page) => page + 1);
             }
         }

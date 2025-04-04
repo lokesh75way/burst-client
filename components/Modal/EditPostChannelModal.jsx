@@ -16,7 +16,7 @@ import ConfirmPostRemoveModal from "./ConfirmPostRemoveModal";
 
 const EditPostChannelModal = ({
     setShowEditPostChannelModal,
-    burstedChannels,
+    burstedChannels = [],
     setBurstedChannels,
     postId,
     onRefresh,
@@ -38,9 +38,16 @@ const EditPostChannelModal = ({
         console.log(postId);
         console.log(selectedChannel);
         await removePostFromChannel(postId, selectedChannel.id);
-        setBurstedChannels((prevChannels) =>
-            prevChannels.filter((channel) => channel.id !== selectedChannel.id),
-        );
+        setBurstedChannels((prev) => {
+            const updatedChannels = (prev[postId] || []).filter(
+                (channel) => channel.id !== selectedChannel.id
+            );
+        
+            return {
+                ...prev,
+                [postId]: updatedChannels,
+            };
+        });
         // setShowConfirmRemoveModal(false);
         // setShowEditPostChannelModal(false);
         confirmModalSheetRef?.current?.close();

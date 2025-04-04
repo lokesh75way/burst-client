@@ -132,17 +132,20 @@ const Feed = (props) => {
         }
     }, [currentChannel]);
 
-    const onEndReached = () => {
-        if (isLoading) return;
-        if (currentChannel > 0 && channelFeedCount > feedData.length) {
-            setChannelPage((page) => page + 1);
-            if (channelPage > 1) {
-                handleChannelPagination();
+    const onEndReached = useCallback(() => {
+        if (isLoading || isLoadingChannel) return;
+        if (currentChannel > 0) {
+            if (channelFeedCount > feedData.length) {
+                setChannelPage(prevPage => {
+                    const newPage = prevPage + 1;
+                    handleChannelPagination(newPage);
+                    return newPage;
+                });
             }
-        } else if (currentChannel === 0) {
-            setPage((page) => page + 1);
+        } else if (!endReached) {
+            setPage(prevPage => prevPage + 1);
         }
-    };
+    }, [isLoading, isLoadingChannel, currentChannel, channelFeedCount, feedData.length, endReached]);
 
     const fetchUserData = useCallback(async () => {
         let user;
@@ -226,7 +229,7 @@ const Feed = (props) => {
         // }
     }, [currentChannel]);
 
-    const handleChannelPagination = async () => {
+    const handleChannelPagination = async (channelPage) => {
         if (isLoadingChannel || currentChannel === 0) return;
         if (channelFeedCount <= feedData.length) return;
 
@@ -291,11 +294,6 @@ const Feed = (props) => {
         fetchChannelData();
     };
 
-    const removePost = (id) => {
-        setFeedData((prevFeedData) =>
-            prevFeedData.filter((post) => post.id !== id),
-        );
-    };
 
     const ListFooterComponent = () => {
         const shouldShowLoader =
@@ -347,6 +345,71 @@ const Feed = (props) => {
         setRefreshBar(true);
     };
 
+    const addLocalReply = (newReply) => {
+
+        setFeedData((prevFeedData) => {
+            return prevFeedData.map((post) => {
+                if (post.id === newReply.postId) {
+                    const updatedPost = {
+                        ...post,
+                        replies: Array.isArray(post.replies) 
+                            ? [...post.replies, newReply]
+                            : [newReply],
+                        counts: {
+                            ...post.counts,
+                            reply: (post.counts.reply || 0) + 1
+                        }
+                    };
+                    return updatedPost;
+                }
+                return post;
+            });
+        });
+    }
+    const removePost = useCallback((id) => {
+        setFeedData(prevFeedData =>
+            prevFeedData.filter(post => post.id !== id)
+        );
+    }, []);
+    const removeLocalReply = useCallback((replyId, parentPostId) => {
+        setFeedData(prevFeedData => {
+            return prevFeedData.map(post => {
+                if (post.id === parentPostId) {
+                    const updatedReplies = post.replies?.filter(reply => reply.id !== replyId) || [];
+                    return {
+                        ...post,
+                        replies: updatedReplies,
+                        counts: {
+                            ...post.counts,
+                            reply: Math.max(0, (post.counts.reply || 0) - 1)
+                        }
+                    };
+                }
+                if (post.replies?.length) {
+                    const updatedReplies = post.replies.map(reply => {
+                        if (reply.id === parentPostId) {
+                            const updatedNestedReplies = reply.replies?.filter(r => r.id !== replyId) || [];
+                            return {
+                                ...reply,
+                                replies: updatedNestedReplies,
+                                counts: {
+                                    ...reply.counts,
+                                    reply: Math.max(0, (reply.counts.reply || 0) - 1)
+                                }
+                            };
+                        }
+                        return reply;
+                    }).filter(Boolean); 
+                    return {
+                        ...post,
+                        replies: updatedReplies
+                    };
+                }          
+                return post;
+            });
+        });
+    }, []);
+
     const feedDataMemoized = useMemo(() => feedData, [feedData]);
     const memoizedRenderItem = useCallback(
         ({ item, index }) => (
@@ -363,10 +426,27 @@ const Feed = (props) => {
                 myChannels={myChannels}
                 removePost={removePost}
                 ERTVersionUserIds={ERTVersionUserIds}
+                addLocalReply={addLocalReply}
+                removeLocalReply={removeLocalReply}
             />
         ),
-        [feedData, userData, currentChannel, myChannels],
+        [feedData, userData, currentChannel, myChannels, removePost],
     );
+
+    useEffect(() => {
+        const replyAddedSubscription = DeviceEventEmitter.addListener('replyAdded', (newReply) => {
+            addLocalReply(newReply);
+        });
+    
+        const replyRemovedSubscription = DeviceEventEmitter.addListener('replyRemoved', ({replyId, parentPostId}) => {
+            removeLocalReply(replyId, parentPostId);
+        });
+    
+        return () => {
+            replyAddedSubscription.remove();
+            replyRemovedSubscription.remove();
+        };
+    }, []);
 
     return (
         <View style={styles.container}>

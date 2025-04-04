@@ -221,12 +221,13 @@ const Profile = ({ navigation, route }) => {
                             color={theme.colors.lightBlue}
                         />
                     ) : (
-                        <View style={{ width: "70%" }}>
+                        <View style={{ flex: 1, maxWidth: "65%" }}>
                             <EditableText
                                 text={displayName}
                                 username={userName}
                                 setText={setDisplayName}
                             />
+                             <Text style={styles.postCountText}>Posts: {postList.length}</Text>
                         </View>
                     )}
                 </View>
@@ -294,6 +295,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         width: "100%",
         overflow: "hidden",
+        // justifyContent: "space-between",
+        // paddingRight: 20,
     },
     buttonContainer: {
         flexDirection: "row",
@@ -396,6 +399,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#999",
     },
+    postCountText: {
+        fontSize: 16,
+        color: "#666",
+        marginTop: 5,
+        marginLeft: 21,
+        marginTop:8
+    },
 });
 
 export default Profile;
+ 

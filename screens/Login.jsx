@@ -25,24 +25,6 @@ import theme from "../config/theme";
 import useApp from "../hooks/useApp";
 import useAuth from "../hooks/useAuth";
 import { loginSchema } from "../services/yup";
-import axios from "axios";
-
-import MockAdapter from "axios-mock-adapter"; // ✅ Added mock adapter
-
-// ✅ Create API instance
-const api = axios.create({ baseURL: "https://api.example.com" });
-
-// ✅ Set up mock for login API
-const mock = new MockAdapter(api, { delayResponse: 500 });
-
-// ✅ Mock successful login
-mock.onPost("/users/signin", { email: "mabel@yopmail.com", password: "Test@123" }).reply(200, {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTc3LCJkaXNwbGF5TmFtZSI6Ik1hYmVsIiwidXNlck5hbWUiOiJNYWJlbCIsImlhdCI6MTc0MjM4MzEyMX0.2SR8I2zR1e2Svn2JPhFHU7F4L62fDp6GuhWdIcETM8c",
-     "user": {"displayName": "Mabel", "email": "mabel@yopmail.com", "emailVerified": true, "id": 177, "isOnboarded": true, "userName": "Mabel"}});
-
-// ✅ Mock failed login (incorrect credentials)
-mock.onPost("/users/signin").reply(401, {
-  message: "Invalid email or password",
-});
 const Login = ({ navigation, route }) => {
     const {
         control,
@@ -54,7 +36,7 @@ const Login = ({ navigation, route }) => {
     } = useForm({
         resolver: yupResolver(loginSchema),
     });
-    const {  forgotPassword, loading } = useAuth();
+    const { login, forgotPassword, loading } = useAuth();
     const { storage, setActiveRoute } = useApp();
     const [passwordVisibility, setPasswordVisibility] = useState(true);
     const isFocused = useIsFocused();
@@ -68,20 +50,6 @@ const Login = ({ navigation, route }) => {
             email: getValues("userEmail"),
             nextRoute,
         });
-    };
-
-    const login = async (email, password) => {
-        // setLoading(true);
-        let result;
-        try {
-            const { data } = await api.post("/users/signin", { email, password });
-            console.log("✅ Login Success:", data);
-            result = data;
-        } catch (error) {
-            console.error("❌ Login Failed:", error.response?.data?.message || error.message);
-        }
-        // setLoading(false);
-        return result;
     };
 
     const handleLogin = async () => {

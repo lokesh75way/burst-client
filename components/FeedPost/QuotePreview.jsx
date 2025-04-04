@@ -10,7 +10,7 @@ import AuthorImage from "./AuthorImage";
 import ImageContainer from "./ImageContainer";
 import PostText from "./PostText";
 
-const QuotePreview = ({ post, onPress, type, parentERT }) => {
+const QuotePreview = ({ post, onPress, type, parentERT, userData }) => {
     const { author, text, createdAt, isERT, media = [] } = post;
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
@@ -34,7 +34,10 @@ const QuotePreview = ({ post, onPress, type, parentERT }) => {
             </View>
         );
     }
-    const imageUrl = getImageUrl(author?.profileImageKey);
+    const imageUrl = 
+            getImageUrl(
+            author.id === parseInt(userData?.id) ? userData?.profileImageKey : author.profileImageKey
+        );
     return (
         <TouchableOpacity
             activeOpacity={0.7}
@@ -45,8 +48,12 @@ const QuotePreview = ({ post, onPress, type, parentERT }) => {
             {!isERT && (
                 <View>
                     <View style={styles.header}>
-                        <AuthorImage size={24} imageUrl={imageUrl} disabled />
-                        <Text style={styles.userName}>{author?.userName}</Text>
+                        <AuthorImage key={imageUrl} size={24} imageUrl={imageUrl} disabled />
+                        <Text style={styles.userName} 
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                            {author.userName}
+                            </Text>
                         <Text style={styles.dateText}>{postDate}</Text>
                     </View>
                     <PostText
@@ -122,6 +129,7 @@ const styles = StyleSheet.create({
         color: "#141619",
         fontSize: 16,
         fontWeight: "bold",
+        maxWidth:"55%"
     },
     dateText: {
         color: "#687684",

@@ -8,7 +8,7 @@ import NotificationSkeletonList from "../components/NotificationList/Notificatio
 import ReceivedButton from "../components/NotificationList/ReceivedButton";
 import useInvitation from "../hooks/useInvitation";
 import useUsers from "../hooks/useUsers";
-
+import useApp from "../hooks/useApp";
 /**
  * Renders the Notification component.
  * This component displays the user's notifications.
@@ -29,7 +29,7 @@ export default function Notification({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [totalCount, setTotalCount] = useState(0);
     const [initialLoading, setInitialLoading] = useState(true);
-
+    const { activeRoute } = useApp();
     useEffect(() => {
         if (isFocused) {
             if (isInitialMount.current) {
@@ -115,6 +115,7 @@ export default function Notification({ navigation }) {
             {initialLoading && <NotificationSkeletonList />}
             {!initialLoading && (
                 <NotificationList
+                    activeRoute={activeRoute}
                     loading={loading}
                     data={data}
                     setPage={setPage}

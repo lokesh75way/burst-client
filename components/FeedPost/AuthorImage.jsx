@@ -9,7 +9,7 @@ import useApp from "../../hooks/useApp";
 import CachedImage from "../CachedImage";
 
 const AuthorImage = (props) => {
-    const { imageUrl, isERT, imageBorder, size, author, disabled, fromTeam } = props;
+    const { imageUrl, isERT, imageBorder, size, author, disabled, fromScreen } = props;
     const { storage, setActiveRoute } = useApp();
     const navigation = useNavigation();
     const goToUserProfile = () => {
@@ -22,7 +22,7 @@ const AuthorImage = (props) => {
                 userName,
                 avatar: profileImageKey ?? defaultAvatar,
                 userId: id,
-                fromTeam: fromTeam
+                fromScreen: fromScreen
             });
         }
     };

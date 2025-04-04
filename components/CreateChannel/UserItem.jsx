@@ -1,15 +1,15 @@
-import React from "react";
+import React , {useState} from "react";
 import { Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
 
 import theme from "../../config/theme";
 import { getImageUrl } from "../../helpers/commonFunction";
 import Button from "../Button";
-
+import { Skeleton } from "react-native-skeletons";
 const UserItem = ({ member, isSelected, onToggle, isDisabled = false }) => {
     const title = isDisabled ? "Creator" : isSelected ? "Remove" : "Add";
     const backgroundColor = isSelected ? theme.colors.blue : theme.colors.white;
     const color = isSelected ? theme.colors.white : theme.colors.blue;
-
+    const [imageLoaded, setImageLoaded] = useState(false);
     const handleToggle = () => {
         onToggle(member);
     };
@@ -20,6 +20,14 @@ const UserItem = ({ member, isSelected, onToggle, isDisabled = false }) => {
         <TouchableOpacity activeOpacity={1} style={styles.userItemContainer}>
             <View style={styles.imageUserNameContainer}>
                 <View style={styles.avatarContainer}>
+                {!imageLoaded && (
+                        <Skeleton
+                            width={60}
+                            height={60}
+                            borderRadius={30}
+                            style={styles.skeleton}
+                        />
+                    )}
                     <Image
                         height={60}
                         width={60}
@@ -67,6 +75,9 @@ const styles = {
     },
     avatarContainer: {
         position: "relative",
+    },
+    skeleton: {
+        position: 'absolute',
     },
     avatar: {
         width: 60,

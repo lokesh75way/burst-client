@@ -195,7 +195,7 @@ export default function Tabs({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.menu} onPress={goToHome}>
+            <TouchableOpacity style={styles.menu} onPress={goToHome} testID="home-nav-icon">
                 <HomeIcon {...styles.icon} fill={fillColor("Home")} />
             </TouchableOpacity>
 
