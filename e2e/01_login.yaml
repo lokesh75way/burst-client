@@ -27,14 +27,8 @@ appId: "com.mycurio.curio"
 # Tap on Login button
 - tapOn: "Login"
 
-- waitForAnimationToEnd
-
-- extendedWaitUntil:
-    notVisible: "Login"
-    timeout: 10000
-
 # Verify login success
-# - assertNotVisible: "Login"
+- assertNotVisible: "Login"
 
 
 - tapOn:
@@ -43,6 +37,5 @@ appId: "com.mycurio.curio"
 - tapOn:
       id: "profile-more"
 - tapOn: "Logout"
-- waitForAnimationToEnd
 - tapOn: "Logout"
 - waitForAnimationToEnd

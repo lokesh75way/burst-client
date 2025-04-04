@@ -82,6 +82,7 @@ appId: "com.mycurio.curio"
       id: "profile-more"
 - tapOn: "Logout"
 - tapOn: "Logout"
+- assertVisible: "Login"
 - waitForAnimationToEnd
 - tapOn:
       point: 14%,51%

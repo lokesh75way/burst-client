@@ -67,7 +67,7 @@ appId: "com.mycurio.curio"
 
 - tapOn:
       id: "channel-tag-input"
-- inputText: "Test_channel_233412"
+- inputText: "Test123_channel_233412"
 - tapOn:
       id: "channel-tag-desc"
 - inputText: "a short description"

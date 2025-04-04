@@ -232,7 +232,7 @@ export default function Tabs({ navigation }) {
             <TouchableOpacity
                 style={styles.menu}
                 onPress={goToProfile}
-                testID="profile-nav-icon"
+                testID="profile-nav-icon" 
             >
                 <CircledUserIcon {...styles.icon} fill={fillColor("Profile")} />
             </TouchableOpacity>

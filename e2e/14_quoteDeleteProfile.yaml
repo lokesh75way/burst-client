@@ -1,0 +1,66 @@
+appId: "com.mycurio.curio"
+---
+- launchApp
+
+# Wait for screen to load
+- waitForAnimationToEnd
+- assertVisible: "Login"
+
+# Tap on Email field and enter text
+- tapOn:
+    point: 14%,51%
+- inputText: "mabel@yopmail.com"
+
+# Tap outside to dismiss keyboard
+- tapOn:
+    point: 12%,29%
+
+# Tap on Password field and enter text
+- tapOn:
+    point: 17%,61%
+- inputText: "Test@123"
+
+- tapOn:
+    point: 12%,29%
+
+
+# Tap on Login button
+- tapOn: "Login"
+
+# Verify login success
+- assertNotVisible: "Login"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "create-post-tab-icon"
+- tapOn: "What's on your mind?"
+- inputText: "post for testing quote"
+- "hideKeyboard"
+- tapOn: "Post"
+- tapOn:
+    id: "add-quote"
+    index: 0
+- tapOn: "Quote it"
+- tapOn: "Add a comment"
+- inputText: "Writing a post to quote"
+- "hideKeyboard"
+- tapOn: "Post"
+- tapOn:
+    id: "profile-nav-icon"
+- tapOn:
+    id: "delete-post"
+    index: 1
+- tapOn: "Delete"
+- assertVisible: "This post is unavailable"
+- tapOn:
+    id: "delete-post"
+    index: 0
+- tapOn: "Delete"
+- tapOn:
+    id: "profile-nav-icon"
+- tapOn:
+    id: "profile-more"
+- tapOn: "Logout"
+- tapOn: "Logout"
+- "waitForAnimationToEnd"
+- assertVisible: "Login"
