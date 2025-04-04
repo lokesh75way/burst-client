@@ -67,7 +67,7 @@ appId: "com.mycurio.curio"
 
 - tapOn:
       id: "channel-tag-input"
-- inputText: "TestChannel_prof"
+- inputText: "TestChannel_prof_1"
 - tapOn:
       id: "channel-tag-desc"
 - inputText: "a short description"
@@ -84,7 +84,7 @@ appId: "com.mycurio.curio"
       index: 0
 
 - tapOn: "Create"
-
+- waitForAnimationToEnd
 - tapOn:
       id: "profile-nav-icon"
 - tapOn:
