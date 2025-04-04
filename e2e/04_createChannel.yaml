@@ -1,24 +1,24 @@
 appId: "com.mycurio.curio"
 ---
-- launchApp
-- waitForAnimationToEnd
-- assertVisible: "Login"
+# - launchApp
+# - waitForAnimationToEnd
+# - assertVisible: "Login"
 
-- tapOn:
-      point: 14%,51%
-- inputText: "mabel@yopmail.com"
+# - tapOn:
+#       point: 14%,51%
+# - inputText: "mabel@yopmail.com"
 
-- tapOn:
-      point: 12%,29%
+# - tapOn:
+#       point: 12%,29%
 
-- tapOn:
-      point: 17%,61%
-- inputText: "Test@123"
+# - tapOn:
+#       point: 17%,61%
+# - inputText: "Test@123"
 
-- tapOn: "Login"
-- waitForAnimationToEnd
+# - tapOn: "Login"
+# - waitForAnimationToEnd
 
-- assertNotVisible: "Login"
+# - assertNotVisible: "Login"
 - waitForAnimationToEnd
 - swipe:
       start: "92%,9%"
@@ -67,7 +67,7 @@ appId: "com.mycurio.curio"
 
 - tapOn:
       id: "channel-tag-input"
-- inputText: "Test123_channel_233412"
+- inputText: "TestChannel_prof"
 - tapOn:
       id: "channel-tag-desc"
 - inputText: "a short description"
@@ -203,10 +203,10 @@ appId: "com.mycurio.curio"
 - waitForAnimationToEnd
 
 - tapOn:
-      id: "profile-nav-icon"
+      id: "home-nav-icon"
 
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
 - waitForAnimationToEnd

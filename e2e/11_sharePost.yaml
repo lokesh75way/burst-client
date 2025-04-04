@@ -1,25 +1,25 @@
 appId: "com.mycurio.curio"
 ---
 
-- launchApp
+# - launchApp
 - waitForAnimationToEnd
-- assertVisible: "Login"
-- tapOn:
-      point: 14%,51%
-- inputText: "mabel@yopmail.com"
+# - assertVisible: "Login"
+# - tapOn:
+#       point: 14%,51%
+# - inputText: "mabel@yopmail.com"
 
-- tapOn:
-      point: 12%,29%
+# - tapOn:
+#       point: 12%,29%
 
-- tapOn:
-      point: 17%,61%
-- inputText: "Test@123"
+# - tapOn:
+#       point: 17%,61%
+# - inputText: "Test@123"
 
-- tapOn: "Login"
+# - tapOn: "Login"
 
-- waitForAnimationToEnd
+# - waitForAnimationToEnd
 
-- assertNotVisible: "Login"
+# - assertNotVisible: "Login"
 - tapOn:
       id: share-button
       index: 0
@@ -30,20 +30,24 @@ appId: "com.mycurio.curio"
 - inputText: "writting a post"
 - longPressOn: "writting a post"
 - tapOn: "Paste"
-- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 - tapOn: "Post"
 - waitForAnimationToEnd
 
 - tapOn: "writting a post "
+- waitForAnimationToEnd
+
 - tapOn:
       id: "back_button"
 
 
-- tapOn:
-      id: "profile-nav-icon"
+# - tapOn:
+#       id: "profile-nav-icon"
 
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
-- waitForAnimationToEnd
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
+# - waitForAnimationToEnd

@@ -1,7 +1,7 @@
 appId: "com.mycurio.curio"
 ---
 
-- launchApp
+# - launchApp
 - waitForAnimationToEnd
 - assertVisible: "Login"
 - tapOn:

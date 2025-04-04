@@ -1,22 +1,22 @@
 appId: "com.mycurio.curio"
 ---
-- launchApp
-- waitForAnimationToEnd
-- assertVisible: "Login"
-- tapOn:
-      point: 14%,51%
-- inputText: "mabel@yopmail.com"
+# - launchApp
+# - waitForAnimationToEnd
+# - assertVisible: "Login"
+# - tapOn:
+#       point: 14%,51%
+# - inputText: "mabel@yopmail.com"
 
-- tapOn:
-      point: 12%,29%
+# - tapOn:
+#       point: 12%,29%
 
-- tapOn:
-      point: 17%,61%
-- inputText: "Test@123"
+# - tapOn:
+#       point: 17%,61%
+# - inputText: "Test@123"
 
-- tapOn: "Login"
+# - tapOn: "Login"
 
-- assertNotVisible: "Login"
+# - assertNotVisible: "Login"
 
 - tapOn:
       id: create-post-tab-icon
@@ -24,7 +24,9 @@ appId: "com.mycurio.curio"
 - tapOn: "What's on your mind?"
 - inputText: "This is a test post"
 
-- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 
 - tapOn: "Post"
 
@@ -63,7 +65,9 @@ appId: "com.mycurio.curio"
 
 - inputText: "Test reply"
 
-- hideKeyboard
+- tapOn: "Reply"
+
+- waitForAnimationToEnd
 - tapOn: "Reply"
 
 - waitForAnimationToEnd
@@ -74,7 +78,9 @@ appId: "com.mycurio.curio"
 - tapOn: "Quote it"
 - tapOn: "Add a comment"
 - inputText: "Adding a Quote Test"
-- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 - tapOn: "Post"
 
 - waitForAnimationToEnd
@@ -108,11 +114,11 @@ appId: "com.mycurio.curio"
 - assertVisible: "Adding a Quote Test"
 
 
-- tapOn:
-      id: "profile-nav-icon"
+# - tapOn:
+#       id: "profile-nav-icon"
 
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
-- waitForAnimationToEnd
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
+# - waitForAnimationToEnd

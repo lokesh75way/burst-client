@@ -1,23 +1,25 @@
 appId: "com.mycurio.curio"
 ---
-- launchApp
-- waitForAnimationToEnd
-- assertVisible: "Login"
+# - launchApp
+# - waitForAnimationToEnd
+# - assertVisible: "Login"
 
-- tapOn:
-      point: "24%,52%"
-- inputText: "mabel@yopmail.com"
-- tapOn:
-      point: "38%,41%"
-- inputText: "Test@123"
-- tapOn: "Login"
+# - tapOn:
+#       point: "24%,52%"
+# - inputText: "mabel@yopmail.com"
+# - tapOn:
+#       point: "38%,41%"
+# - inputText: "Test@123"
+# - tapOn: "Login"
 
 - waitForAnimationToEnd
 - tapOn:
       id: "create-post-tab-icon"
 - tapOn: "What's on your mind?"
 - inputText: "testing tag notification @oli"
-- "hideKeyboard"
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 - tapOn: "Oli"
 - tapOn: "Post"
 - waitForAnimationToEnd
@@ -85,15 +87,19 @@ appId: "com.mycurio.curio"
 - tapOn:
       id: "delete-post"
       index: 0
+- waitForAnimationToEnd
+
 
 - tapOn: "Delete"
-
-- tapOn:
-      id: "profile-nav-icon"
-
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
 - waitForAnimationToEnd
-- assertVisible: "Login"
+
+
+# - tapOn:
+#       id: "profile-nav-icon"
+
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
+# - waitForAnimationToEnd
+# - assertVisible: "Login"

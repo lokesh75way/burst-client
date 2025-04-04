@@ -1,38 +1,40 @@
 appId: "com.mycurio.curio"
 ---
-- launchApp
+# - launchApp
 - waitForAnimationToEnd
-- assertVisible: "Login"
+# - assertVisible: "Login"
 
-# Tap on Email field and enter text
-- tapOn:
-    point: 14%,51%
-- inputText: "mabel@yopmail.com"
+# # Tap on Email field and enter text
+# - tapOn:
+#     point: 14%,51%
+# - inputText: "mabel@yopmail.com"
 
-# Tap outside to dismiss keyboard
-- tapOn:
-    point: 12%,29%
+# # Tap outside to dismiss keyboard
+# - tapOn:
+#     point: 12%,29%
 
-# Tap on Password field and enter text
-- tapOn:
-    point: 17%,61%
-- inputText: "Test@123"
+# # Tap on Password field and enter text
+# - tapOn:
+#     point: 17%,61%
+# - inputText: "Test@123"
 
-- tapOn:
-    point: 12%,29%
+# - tapOn:
+#     point: 12%,29%
 
 
-# Tap on Login button
-- tapOn: "Login"
+# # Tap on Login button
+# - tapOn: "Login"
 
-# Verify login success
-- assertNotVisible: "Login"
+# # Verify login success
+# - assertNotVisible: "Login"
 
 - tapOn:
     id: "create-post-tab-icon"
 - tapOn: "What's on your mind?"
 - inputText: "Test post to add instant reply on home screen"
-- "hideKeyboard"
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 - tapOn: "Post"
 - tapOn:
     id: "profile-nav-icon"
@@ -41,7 +43,9 @@ appId: "com.mycurio.curio"
     id: "add-reply"
 - tapOn: "Post your reply"
 - inputText: "My reply to add instant"
-- "hideKeyboard"
+- tapOn: "Reply"
+
+- waitForAnimationToEnd
 - tapOn: "Reply"
 - tapOn:
     id: "back_button"
@@ -54,10 +58,10 @@ appId: "com.mycurio.curio"
     id: "delete-post"
     index: 0
 - tapOn: "Delete"
-- "waitForAnimationToEnd"
+- waitForAnimationToEnd
 - tapOn:
     id: "home-nav-icon"
-- "waitForAnimationToEnd"
+- waitForAnimationToEnd
 - assertNotVisible: "My reply to add instant"
 - tapOn:
     id: "profile-nav-icon"
@@ -65,9 +69,13 @@ appId: "com.mycurio.curio"
     id: "delete-post"
     index: 0
 - tapOn: "Delete"
+- waitForAnimationToEnd
+
 - tapOn:
     id: "profile-more"
 - tapOn: "Logout"
+- waitForAnimationToEnd
+
 - tapOn: "Logout"
 - "waitForAnimationToEnd"
 - assertVisible: "Login"

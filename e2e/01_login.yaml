@@ -1,6 +1,5 @@
 appId: "com.mycurio.curio"
 ---
-- launchApp
 
 # Wait for screen to load
 - waitForAnimationToEnd
@@ -31,11 +30,11 @@ appId: "com.mycurio.curio"
 - assertNotVisible: "Login"
 
 
-- tapOn:
-      id: "profile-nav-icon"
+# - tapOn:
+#       id: "profile-nav-icon"
 
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
-- waitForAnimationToEnd
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
+# - waitForAnimationToEnd
