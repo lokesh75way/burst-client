@@ -26,7 +26,9 @@ appId: "com.mycurio.curio"
 - tapOn: "What's on your mind?"
 - inputText: "This is a test post"
 
-- hideKeyboard
+- tapOn: "Post"
+
+- waitForAnimationToEnd
 
 - tapOn: "Post"
 

@@ -112,11 +112,13 @@ jobs:
           done
 
       - name: Stop Recording iOS Simulator
+        if: always()
         run: |
           kill -SIGINT $(cat simulator_recording_pid.txt)
           sleep 5 # Ensure the recording process has terminated
 
       - name: Upload Simulator Recording
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: simulator-recording
