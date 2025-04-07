@@ -52,7 +52,7 @@ export const notificationCode = "CO1oza7TLb2JI5hdb9ej25";
  */
 // export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || "";
 // export const apiBaseUrl = "https://72bf-2404-7c80-64-9a31-f8ac-c359-90ce-665c.ngrok-free.app/api/v1/";
-export const apiBaseUrl = "https://c83a-2404-7c80-64-9a31-800e-c47d-c8d8-605c.ngrok-free.app/api/v1/"
+export const apiBaseUrl = "https://9346-2404-7c80-64-9a31-5cd0-c57d-5674-fafe.ngrok-free.app/api/v1/"
 /**
  * Base URL for notification API.
  * @type {string}
@@ -65,7 +65,7 @@ export const notificationApiBaseUrl = "https://app.nativenotify.com/api";
  */
 // export const imageBaseUrl = process.env.EXPO_PUBLIC_IMAGE_URL || "";
 // export const imageBaseUrl = "https://72bf-2404-7c80-64-9a31-f8ac-c359-90ce-665c.ngrok-free.app/";
-export const imageBaseUrl = "https://c83a-2404-7c80-64-9a31-800e-c47d-c8d8-605c.ngrok-free.app/"
+export const imageBaseUrl = "https://9346-2404-7c80-64-9a31-5cd0-c57d-5674-fafe.ngrok-free.app/"
 export const reviewThreshold = 1;
 
 export const AWS_ACCESS_KEY_ID = process.env.EXPO_PUBLIC_AWS_ACCESS_KEY_ID;

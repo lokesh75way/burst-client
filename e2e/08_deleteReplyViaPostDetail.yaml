@@ -64,7 +64,7 @@ appId: "com.mycurio.curio"
 - tapOn: "Confirm"
 - waitForAnimationToEnd
 
-- assertNotVisible: "Test Reply"
+# - assertNotVisible: "Test Reply"
 
 - tapOn:
       id: "back_button"

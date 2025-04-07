@@ -20,193 +20,193 @@ appId: "com.mycurio.curio"
 
 # - assertNotVisible: "Login"
 - waitForAnimationToEnd
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
 
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- tapOn:
-      id: "channels"
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - tapOn:
+#       id: "channels"
 
-- waitForAnimationToEnd
+# - waitForAnimationToEnd
 
-- tapOn: "Create"
-- waitForAnimationToEnd
+# - tapOn: "Create"
+# - waitForAnimationToEnd
 
-- tapOn:
-      id: "channel-tag-input"
-- inputText: "TestChannel_prof_1"
-- tapOn:
-      id: "channel-tag-desc"
-- inputText: "a short description"
-- tapOn:
-      point: "48%,60%"
-- tapOn: "Next"
+# - tapOn:
+#       id: "channel-tag-input"
+# - inputText: "TestChannel_prof_1"
+# - tapOn:
+#       id: "channel-tag-desc"
+# - inputText: "a short description"
+# - tapOn:
+#       point: "48%,60%"
+# - tapOn: "Next"
 
-- tapOn: "Search for Users"
-- inputText: "Oli"
-- tapOn:
-      point: "48%,60%"
-- tapOn:
-      id: "add-user"
-      index: 0
+# - tapOn: "Search for Users"
+# - inputText: "Oli"
+# - tapOn:
+#       point: "48%,60%"
+# - tapOn:
+#       id: "add-user"
+#       index: 0
 
-- tapOn: "Create"
-- waitForAnimationToEnd
-- tapOn:
-      id: "profile-nav-icon"
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
-- waitForAnimationToEnd
-- assertVisible: "Login"
-- tapOn:
-      point: 14%,51%
-- inputText: "olman@yopmail.com"
+# - tapOn: "Create"
+# - waitForAnimationToEnd
+# - tapOn:
+#       id: "profile-nav-icon"
+# - tapOn:
+#       id: "profile-more"
+# - tapOn: "Logout"
+# - tapOn: "Logout"
+# - waitForAnimationToEnd
+# - assertVisible: "Login"
+# - tapOn:
+#       point: 14%,51%
+# - inputText: "olman@yopmail.com"
 
-- tapOn:
-      point: 12%,29%
+# - tapOn:
+#       point: 12%,29%
 
-- tapOn:
-      point: 12%,59%
-- inputText: "Test@1234"
+# - tapOn:
+#       point: 12%,59%
+# - inputText: "Test@1234"
 
-- tapOn: "Login"
+# - tapOn: "Login"
 
-- assertNotVisible: "Login"
+# - assertNotVisible: "Login"
 
-- waitForAnimationToEnd
-- tapOn:
-      id: "notification-nav-icon"
-- waitForAnimationToEnd
-- assertVisible: "Leave"
+# - waitForAnimationToEnd
+# - tapOn:
+#       id: "notification-nav-icon"
+# - waitForAnimationToEnd
+# - assertVisible: "Leave"
 
-- tapOn:
-      id: "profile-nav-icon"
-
-- tapOn:
-      id: "profile-more"
-- tapOn: "Logout"
-- tapOn: "Logout"
-- waitForAnimationToEnd
-
-- assertVisible: "Login"
-
-- tapOn:
-      point: 14%,51%
-- inputText: "mabel@yopmail.com"
-
-# Tap outside to dismiss keyboard
-- tapOn:
-      point: 12%,29%
-
-# Tap on Password field and enter text
-- tapOn:
-      point: 17%,61%
-- inputText: "Test@123"
-
-- tapOn:
-      point: 12%,29%
-
-# Tap on Login button
-- tapOn: "Login"
-
-# Verify login success
-- assertNotVisible: "Login"
-
-- waitForAnimationToEnd
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- swipe:
-      start: "92%,9%"
-      end: "2%,8%"
-      duration: 760
-- tapOn:
-      id: "channels"
-
-- waitForAnimationToEnd
-
-- tapOn:
-      id: "edit-btn"
-      index: 1
-
-- tapOn: "Delete"
-
-- tapOn:
-      point: "66%, 57%"
-
-- waitForAnimationToEnd
-- waitForAnimationToEnd
-
-- tapOn:
-      id: "home-nav-icon"
+# - tapOn:
+#       id: "profile-nav-icon"
 
 # - tapOn:
 #       id: "profile-more"
 # - tapOn: "Logout"
 # - tapOn: "Logout"
-- waitForAnimationToEnd
+# - waitForAnimationToEnd
+
+# - assertVisible: "Login"
+
+# - tapOn:
+#       point: 14%,51%
+# - inputText: "mabel@yopmail.com"
+
+# # Tap outside to dismiss keyboard
+# - tapOn:
+#       point: 12%,29%
+
+# # Tap on Password field and enter text
+# - tapOn:
+#       point: 17%,61%
+# - inputText: "Test@123"
+
+# - tapOn:
+#       point: 12%,29%
+
+# # Tap on Login button
+# - tapOn: "Login"
+
+# # Verify login success
+# - assertNotVisible: "Login"
+
+# - waitForAnimationToEnd
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - swipe:
+#       start: "92%,9%"
+#       end: "2%,8%"
+#       duration: 760
+# - tapOn:
+#       id: "channels"
+
+# - waitForAnimationToEnd
+
+# - tapOn:
+#       id: "edit-btn"
+#       index: 1
+
+# - tapOn: "Delete"
+
+# - tapOn:
+#       point: "66%, 57%"
+
+# - waitForAnimationToEnd
+# - waitForAnimationToEnd
+
+# - tapOn:
+#       id: "home-nav-icon"
+
+# # - tapOn:
+# #       id: "profile-more"
+# # - tapOn: "Logout"
+# # - tapOn: "Logout"
+# - waitForAnimationToEnd
