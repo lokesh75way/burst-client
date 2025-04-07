@@ -21,6 +21,9 @@ appId: "com.mycurio.curio"
 
 # - assertNotVisible: "Login"
 - tapOn:
+      id: home-nav-icon
+- waitForAnimationToEnd
+- tapOn:
       id: share-button
       index: 0
 - tapOn: Copy Link
